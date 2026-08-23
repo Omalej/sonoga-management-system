@@ -1,0 +1,2 @@
+business_unit_code,product_code,name,output_quantity,is_default,notes,is_active
+BREAD,LARGE-LOAF,Standard Large Loaf,100,true,Replace quantities with the approved Sonoga recipe,true

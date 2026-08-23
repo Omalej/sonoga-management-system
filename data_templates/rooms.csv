@@ -1,0 +1,3 @@
+business_unit_code,room_type_code,number,floor,occupancy_status,housekeeping_status,maintenance_status,is_blocked,notes
+HOTEL,STD,101,Ground,VACANT,CLEAN,CLEAR,false,
+HOTEL,DLX,201,First,VACANT,CLEAN,CLEAR,false,

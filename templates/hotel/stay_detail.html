@@ -1,0 +1,7 @@
+{% extends "layouts/base.html" %}
+{% block title %}Guest Folio · Sonoga{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>{{ stay.guest.full_name }}</h1><p>Room {{ stay.room.number }} · {{ stay.get_status_display }}</p></div><div class="actions">{% if not folio.is_closed %}<a class="btn primary" href="/hotel/folios/{{ folio.id }}/payment/">Receive Payment</a><a class="btn danger" href="/hotel/stays/{{ stay.id }}/check-out/">Check Out</a>{% endif %}</div></div>
+<div class="metric-grid three"><div class="metric-card"><span>Charges</span><strong>₦{{ folio.charges_total|floatformat:2 }}</strong></div><div class="metric-card"><span>Payments</span><strong>₦{{ folio.payments_total|floatformat:2 }}</strong></div><div class="metric-card"><span>Balance</span><strong>₦{{ folio.balance|floatformat:2 }}</strong></div></div>
+<div class="two-col"><div class="panel"><h2>Charges</h2>{% for c in charges %}<div class="line-item"><span>{{ c.description }}<small>{{ c.get_charge_type_display }}</small></span><strong>₦{{ c.amount|floatformat:2 }}</strong></div>{% empty %}<p>No charges.</p>{% endfor %}</div><div class="panel"><h2>Payments</h2>{% for p in payments %}<div class="line-item"><span>{{ p.reference }}<small>{{ p.get_method_display }}</small></span><strong>₦{{ p.amount|floatformat:2 }}</strong></div>{% empty %}<p>No payments.</p>{% endfor %}</div></div>
+{% endblock %}

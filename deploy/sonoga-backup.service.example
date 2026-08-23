@@ -1,0 +1,9 @@
+[Unit]
+Description=Sonoga HMS backup
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/sonoga_hms
+ExecStart=/opt/sonoga_hms/deploy/backup.sh

@@ -1,0 +1,5 @@
+business_unit_code,code,name,category,unit,standard_cost,minimum_stock,reorder_level,is_active
+WATER,SACHET-WATER,Sachet Water,FINISHED_PRODUCT,BAG,0,0,0,true
+WATER,NYLON,Sachet Nylon,PACKAGING,ROLL,0,0,0,true
+BREAD,LARGE-LOAF,Large Loaf,FINISHED_PRODUCT,LOAF,0,0,0,true
+BREAD,FLOUR,Flour,RAW_MATERIAL,KG,0,0,0,true

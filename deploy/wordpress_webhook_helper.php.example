@@ -1,0 +1,41 @@
+<?php
+/**
+ * Sonoga WordPress -> Django HMS helper.
+ *
+ * WordPress remains the public booking owner. These helpers only transmit
+ * successful booking/payment events to the Django HMS.
+ */
+
+function sonoga_hms_signed_post($path, array $payload) {
+    $base_url = defined('SONOGA_HMS_BASE_URL')
+        ? rtrim(SONOGA_HMS_BASE_URL, '/')
+        : 'https://manage.sonogahotels.com';
+    $secret = defined('SONOGA_HMS_WEBHOOK_SECRET') ? SONOGA_HMS_WEBHOOK_SECRET : '';
+
+    if (!$secret) {
+        return new WP_Error('sonoga_missing_secret', 'Sonoga HMS webhook secret is not configured.');
+    }
+
+    $body = wp_json_encode($payload);
+    $timestamp = (string) time();
+    $signature = hash_hmac('sha256', $timestamp . '.' . $body, $secret);
+
+    return wp_remote_post($base_url . $path, [
+        'timeout' => 20,
+        'headers' => [
+            'Content-Type'       => 'application/json',
+            'X-Sonoga-Api-Key'   => $secret,
+            'X-Sonoga-Timestamp' => $timestamp,
+            'X-Sonoga-Signature' => 'sha256=' . $signature,
+        ],
+        'body' => $body,
+    ]);
+}
+
+function sonoga_hms_ping() {
+    return sonoga_hms_signed_post('/api/wordpress/ping/', ['ping' => true]);
+}
+
+function sonoga_send_booking_to_hms(array $payload) {
+    return sonoga_hms_signed_post('/api/wordpress/bookings/', $payload);
+}

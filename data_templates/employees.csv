@@ -1,0 +1,4 @@
+staff_number,first_name,middle_name,last_name,phone,email,address,business_unit_code,department_code,position_name,employment_type,employment_date,status,basic_salary,bank_name,account_name,account_number
+SON-H-001,Example,,Receptionist,08000000000,,,HOTEL,FO,Receptionist,PERMANENT,2026-08-16,ACTIVE,0,,,
+SON-W-001,Example,,Operator,08000000001,,,WATER,PROD,Machine Operator,PERMANENT,2026-08-16,ACTIVE,0,,,
+SON-B-001,Example,,Baker,08000000002,,,BREAD,PROD,Baker,PERMANENT,2026-08-16,ACTIVE,0,,,

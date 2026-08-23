@@ -1,0 +1,6 @@
+services:
+  web:
+    volumes:
+      - .:/app
+      - static_data:/app/staticfiles
+      - media_data:/app/media

@@ -1,0 +1,110 @@
+﻿{% extends "layouts/base.html" %}
+{% block title %}Sonoga Hotels - Departments & Outlets{% endblock %}
+{% block content %}
+<div class="dashboard-header mb-4">
+    <h2>Sonoga Hotels Operational Dashboard</h2>
+    <p class="text-muted">Active Unit: <strong>{{ unit.name }}</strong> — Managing all rooms, lounges, bars, and kitchen outlets.</p>
+</div>
+
+<!-- Departments & Outlets Grid -->
+<div class="row g-4">
+    
+    <!-- 1. Reception / Rooms -->
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100 border-top border-primary border-4">
+            <div class="card-body">
+                <h5 class="card-title text-primary">🏨 Reception (Rooms)</h5>
+                <p class="text-muted small">Front office, guest check-ins, check-outs, room status board, and folio billing.</p>
+                <div class="d-grid gap-2 mt-3">
+                    <a href="/hotel/" class="btn btn-sm btn-primary">Room Status Board</a>
+                    <a href="/hotel/reservations/" class="btn btn-sm btn-outline-primary">Reservations Hub</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Open Bar -->
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100 border-top border-success border-4">
+            <div class="card-body">
+                <h5 class="card-title text-success">🍻 Open Bar</h5>
+                <p class="text-muted small">Drink sales, bar tab tracking, and direct room folio charging.</p>
+                <div class="d-grid gap-2 mt-3">
+                    <a href="/hotel/" class="btn btn-sm btn-success">Open Bar POS / Billing</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Basement -->
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100 border-top border-warning border-4">
+            <div class="card-body">
+                <h5 class="card-title text-warning">🏢 Basement Lounge</h5>
+                <p class="text-muted small">Basement lounge sales, beverage inventory, and guest charge posting.</p>
+                <div class="d-grid gap-2 mt-3">
+                    <a href="/hotel/" class="btn btn-sm btn-warning text-dark">Basement Outlet Hub</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Rooftop Lounge -->
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100 border-top border-info border-4">
+            <div class="card-body">
+                <h5 class="card-title text-info">🌇 Rooftop Lounge</h5>
+                <p class="text-muted small">Open-air bar & lounge orders, table service, and folio integration.</p>
+                <div class="d-grid gap-2 mt-3">
+                    <a href="/hotel/" class="btn btn-sm btn-info text-white">Rooftop POS Terminal</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. VIP Lounge -->
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100 border-top border-danger border-4">
+            <div class="card-body">
+                <h5 class="card-title text-danger">⭐ VIP Lounge</h5>
+                <p class="text-muted small">Exclusive guest services, premium beverage service, and priority billing.</p>
+                <div class="d-grid gap-2 mt-3">
+                    <a href="/hotel/" class="btn btn-sm btn-danger">VIP Lounge Billing</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Kitchen -->
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100 border-top border-secondary border-4">
+            <div class="card-body">
+                <h5 class="card-title text-secondary">🍳 Kitchen & Restaurant</h5>
+                <p class="text-muted small">Food orders, recipe management, kitchen ticket queues, and dining charges.</p>
+                <div class="d-grid gap-2 mt-3">
+                    <a href="/hotel/" class="btn btn-sm btn-secondary">Kitchen Order System</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Additional Operations Bar -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card shadow-sm bg-light">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-0">Support Facilities</h6>
+                    <small class="text-muted">Manage housekeeping cleaning schedules and maintenance repair tickets.</small>
+                </div>
+                <div>
+                    <a href="/hotel/housekeeping/" class="btn btn-sm btn-outline-dark me-2">Housekeeping Queue</a>
+                    <a href="/finance/" class="btn btn-sm btn-dark">Finance & Expenses</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
