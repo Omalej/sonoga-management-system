@@ -13,8 +13,6 @@ class GuestForm(forms.ModelForm):
         }
 
 class ManualReservationForm(forms.ModelForm):
-    guest_name = forms.CharField(max_length=150, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full name of guest'}))
-    guest_phone = forms.CharField(max_length=50, required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone number'}))
     room = forms.ModelChoiceField(
         queryset=Room.objects.all(),
         widget=forms.Select(attrs={'class': 'form-select'}),
@@ -23,11 +21,12 @@ class ManualReservationForm(forms.ModelForm):
 
     class Meta:
         model = Reservation
-        fields = ['guest_name', 'guest_phone', 'room', 'room_type_name', 'arrival_date', 'departure_date', 'status']
+        fields = ['guest_name', 'room', 'room_type_name', 'check_in_date', 'check_out_date', 'status']
         widgets = {
+            'guest_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full name of guest'}),
             'room_type_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Standard Room, Family Suite'}),
-            'arrival_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'departure_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'check_in_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'check_out_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
         }
 
@@ -35,12 +34,11 @@ class ManualReservationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['room'].queryset = Room.objects.all().order_by('room_number')
 
-    def save(self, user=None, commit=True):
+    def save(self, commit=True):
         guest_name = self.cleaned_data.get('guest_name')
-        guest_phone = self.cleaned_data.get('guest_phone') or 'WALK-IN'
         guest, _ = Guest.objects.get_or_create(
-            phone=guest_phone,
-            defaults={'name': guest_name}
+            name=guest_name,
+            defaults={'phone': 'WALK-IN'}
         )
         reservation = super().save(commit=False)
         reservation.guest = guest
