@@ -30,7 +30,7 @@ def hotel_dashboard(request):
         return redirect("home")
     today = timezone.localdate()
     rooms = Room.objects.filter(business_unit=unit).select_related("room_type").order_by("number")
-    arrivals = Reservation.objects.filter(room__business_unit=unit, arrival_date=today, status__in=[Reservation.Status.PENDING, Reservation.Status.CONFIRMED]).select_related("guest", "room_type", "assigned_room")
+    arrivals = Reservation.objects.filter(room__business_unit=unit, arrival_date=today, status__in=[Reservation.Status.PENDING, Reservation.Status.CONFIRMED]).select_related("guest", "room")
     context = {
         "unit": unit,
         "rooms": rooms,
@@ -46,9 +46,9 @@ def hotel_dashboard(request):
 def reservation_list(request):
     unit = _hotel_unit_for(request.user)
     if unit:
-        qs = Reservation.objects.filter(room__business_unit=unit).select_related("guest", "room", "room_type").order_by("-created_at")
+        qs = Reservation.objects.filter(room__business_unit=unit).select_related("guest", "room").order_by("-created_at")
     else:
-        qs = Reservation.objects.all().select_related("guest", "room", "room_type").order_by("-created_at")
+        qs = Reservation.objects.all().select_related("guest", "room").order_by("-created_at")
     q = request.GET.get("q", "").strip()
     if q:
         qs = qs.filter(Q(reservation_number__icontains=q) | Q(external_reference__icontains=q) | Q(guest__first_name__icontains=q) | Q(guest__last_name__icontains=q) | Q(guest__phone__icontains=q))
@@ -74,7 +74,7 @@ def reservation_create(request):
 
 @role_required(HOTEL_MANAGER, RECEPTIONIST, GROUP_MANAGEMENT)
 def reservation_detail(request, pk):
-    reservation = get_object_or_404(Reservation.objects.select_related("guest", "room", "room_type"), pk=pk)
+    reservation = get_object_or_404(Reservation.objects.select_related("guest", "room"), pk=pk)
     payments = reservation.payments.all().order_by("created_at")
     return render(request, "hotel/reservation_detail.html", {"reservation": reservation, "payments": payments})
 
