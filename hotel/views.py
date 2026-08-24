@@ -30,7 +30,7 @@ def hotel_dashboard(request):
         return redirect("home")
     today = timezone.localdate()
     rooms = Room.objects.filter(business_unit=unit).select_related("room_type").order_by("number")
-    arrivals = Reservation.objects.filter(business_unit=unit, arrival_date=today, status__in=[Reservation.Status.PENDING, Reservation.Status.CONFIRMED]).select_related("guest", "room_type", "assigned_room")
+    arrivals = Reservation.objects.filter(room__business_unit=unit, arrival_date=today, status__in=[Reservation.Status.PENDING, Reservation.Status.CONFIRMED]).select_related("guest", "room_type", "assigned_room")
     context = {
         "unit": unit,
         "rooms": rooms,
@@ -45,7 +45,10 @@ def hotel_dashboard(request):
 @role_required(HOTEL_MANAGER, RECEPTIONIST, GROUP_MANAGEMENT)
 def reservation_list(request):
     unit = _hotel_unit_for(request.user)
-    qs = Reservation.objects.filter(business_unit=unit).select_related("guest", "room_type", "assigned_room").order_by("-created_at")
+    if unit:
+        qs = Reservation.objects.filter(room__business_unit=unit).select_related("guest", "room", "room_type").order_by("-created_at")
+    else:
+        qs = Reservation.objects.all().select_related("guest", "room", "room_type").order_by("-created_at")
     q = request.GET.get("q", "").strip()
     if q:
         qs = qs.filter(Q(reservation_number__icontains=q) | Q(external_reference__icontains=q) | Q(guest__first_name__icontains=q) | Q(guest__last_name__icontains=q) | Q(guest__phone__icontains=q))
@@ -71,7 +74,7 @@ def reservation_create(request):
 
 @role_required(HOTEL_MANAGER, RECEPTIONIST, GROUP_MANAGEMENT)
 def reservation_detail(request, pk):
-    reservation = get_object_or_404(Reservation.objects.select_related("guest", "room_type", "assigned_room", "business_unit"), pk=pk)
+    reservation = get_object_or_404(Reservation.objects.select_related("guest", "room", "room_type"), pk=pk)
     payments = reservation.payments.all().order_by("created_at")
     return render(request, "hotel/reservation_detail.html", {"reservation": reservation, "payments": payments})
 
@@ -91,7 +94,7 @@ def reservation_checkin(request, pk):
 
 @role_required(HOTEL_MANAGER, RECEPTIONIST, GROUP_MANAGEMENT)
 def stay_detail(request, pk):
-    stay = get_object_or_404(Reservation.objects.select_related("guest", "assigned_room"), pk=pk)
+    stay = get_object_or_404(Reservation.objects.select_related("guest", "room"), pk=pk)
     return render(request, "hotel/stay_detail.html", {"stay": stay})
 
 @role_required(HOTEL_MANAGER, RECEPTIONIST, GROUP_MANAGEMENT)
@@ -159,7 +162,6 @@ def wordpress_booking_webhook(request):
             body_text = request.body.decode('utf-8') if request.body else '{}'
             data = json.loads(body_text) if body_text.strip() else {}
             
-            # Handle WooCommerce Test Pings gracefully with 200 OK
             if not data or 'action' in data or 'webhook_id' in data or not data.get('id'):
                 return JsonResponse({
                     'status': 'success',
