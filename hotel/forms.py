@@ -45,10 +45,6 @@ class ManualReservationForm(forms.ModelForm):
         reservation = super().save(commit=False)
         reservation.guest = guest
         reservation.source = Reservation.Source.RECEPTION
-        if user and user.is_authenticated:
-            # If your Reservation model tracks created_by, assign it here safely if the field exists
-            if hasattr(reservation, 'created_by'):
-                reservation.created_by = user
         if commit:
             reservation.save()
         return reservation
