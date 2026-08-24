@@ -5,6 +5,16 @@ from .models import Reservation, Room, Guest
 from .forms import ManualReservationForm, GuestForm, CheckInForm, FolioPaymentForm, HousekeepingUpdateForm
 
 @login_required
+def hotel_dashboard(request):
+    context = {
+        'total_rooms': Room.objects.count(),
+        'total_reservations': Reservation.objects.count(),
+        'recent_reservations': Reservation.objects.all()[:5],
+        'rooms': Room.objects.all().order_by('room_number')
+    }
+    return render(request, 'hotel/dashboard.html', context)
+
+@login_required
 def reservation_create(request):
     if request.method == 'POST':
         form = ManualReservationForm(request.POST)
@@ -18,10 +28,10 @@ def reservation_create(request):
 
 @login_required
 def reservation_list(request):
-    reservations = Reservation.objects.all().order_by('-created_at') if hasattr(Reservation, 'created_at') else Reservation.objects.all()
+    reservations = Reservation.objects.all()
     return render(request, 'hotel/reservation_list.html', {'reservations': reservations})
 
 @login_required
 def room_list(request):
-    rooms = Room.objects.all().order_by('room_number') if hasattr(Room, 'room_number') else Room.objects.all()
+    rooms = Room.objects.all().order_by('room_number')
     return render(request, 'hotel/room_list.html', {'rooms': rooms})
