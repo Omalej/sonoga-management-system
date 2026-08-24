@@ -13,7 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from accounts.access import HOTEL_MANAGER, RECEPTIONIST, HOUSEKEEPING, GROUP_MANAGEMENT, role_required, business_unit_for
 from organization.models import BusinessUnit
 from .forms import CheckInForm, FolioPaymentForm, GuestForm, HousekeepingUpdateForm, ManualReservationForm
-from .models import Folio, Guest, HousekeepingTask, Reservation, Room, Stay
+from .models import Guest, HousekeepingTask, Reservation, Room, FolioCharge, Payment
 from .services import check_in_reservation, check_out_stay, post_folio_payment, verify_housekeeping_task
 
 def _hotel_unit_for(user):
@@ -31,12 +31,10 @@ def hotel_dashboard(request):
     today = timezone.localdate()
     rooms = Room.objects.filter(business_unit=unit).select_related("room_type").order_by("number")
     arrivals = Reservation.objects.filter(business_unit=unit, arrival_date=today, status__in=[Reservation.Status.PENDING, Reservation.Status.CONFIRMED]).select_related("guest", "room_type", "assigned_room")
-    departures = Stay.objects.filter(reservation__business_unit=unit, reservation__departure_date=today, status=Stay.Status.IN_HOUSE).select_related("guest", "room", "folio")
     context = {
         "unit": unit,
         "rooms": rooms,
         "arrivals": arrivals,
-        "departures": departures,
         "occupied": rooms.filter(occupancy_status=Room.Occupancy.OCCUPIED).count(),
         "ready": sum(1 for room in rooms if room.is_ready),
         "dirty": rooms.filter(housekeeping_status=Room.Housekeeping.DIRTY).count(),
@@ -93,36 +91,35 @@ def reservation_checkin(request, pk):
 
 @role_required(HOTEL_MANAGER, RECEPTIONIST, GROUP_MANAGEMENT)
 def stay_detail(request, pk):
-    stay = get_object_or_404(Stay.objects.select_related("guest", "room", "reservation", "folio"), pk=pk)
-    folio = stay.folio
-    return render(request, "hotel/stay_detail.html", {"stay": stay, "folio": folio, "charges": folio.charges.filter(is_void=False), "payments": folio.payments.all()})
+    stay = get_object_or_404(Reservation.objects.select_related("guest", "assigned_room"), pk=pk)
+    return render(request, "hotel/stay_detail.html", {"stay": stay})
 
 @role_required(HOTEL_MANAGER, RECEPTIONIST, GROUP_MANAGEMENT)
 def folio_payment(request, pk):
-    folio = get_object_or_404(Folio, pk=pk)
+    reservation = get_object_or_404(Reservation, pk=pk)
     form = FolioPaymentForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         try:
-            post_folio_payment(folio_id=folio.pk, user=request.user, **form.cleaned_data)
+            post_folio_payment(reservation_id=reservation.pk, user=request.user, **form.cleaned_data)
         except ValidationError as exc:
             form.add_error(None, exc)
         else:
             messages.success(request, "Payment recorded.")
-            return redirect("hotel:stay_detail", pk=folio.stay_id)
-    return render(request, "layouts/form_page.html", {"form": form, "title": "Receive Guest Payment", "cancel_url": f"/hotel/stays/{folio.stay_id}/"})
+            return redirect("hotel:reservation_detail", pk=reservation.pk)
+    return render(request, "layouts/form_page.html", {"form": form, "title": "Receive Guest Payment", "cancel_url": f"/hotel/reservations/{reservation.pk}/"})
 
 @role_required(HOTEL_MANAGER, RECEPTIONIST, GROUP_MANAGEMENT)
 def stay_checkout(request, pk):
-    stay = get_object_or_404(Stay, pk=pk)
+    reservation = get_object_or_404(Reservation, pk=pk)
     if request.method == "POST":
         try:
-            check_out_stay(stay_id=stay.pk, user=request.user, allow_balance=request.user.is_superuser)
+            check_out_stay(reservation_id=reservation.pk, user=request.user, allow_balance=request.user.is_superuser)
         except ValidationError as exc:
             messages.error(request, "; ".join(exc.messages))
         else:
             messages.success(request, "Guest checked out. Housekeeping task created.")
             return redirect("hotel:dashboard")
-    return render(request, "hotel/checkout_confirm.html", {"stay": stay, "folio": stay.folio})
+    return render(request, "hotel/checkout_confirm.html", {"reservation": reservation})
 
 @role_required(HOUSEKEEPING, HOTEL_MANAGER, GROUP_MANAGEMENT)
 def housekeeping_list(request):
