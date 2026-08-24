@@ -174,32 +174,28 @@ def wordpress_booking_webhook(request):
             if not check_out:
                 check_out = check_in + timedelta(days=1)
 
-            room_type_name = 'Standard'
-            line_items = data.get('line_items', [])
-            if line_items:
-                room_type_name = line_items[0].get('name', 'Standard')
-            else:
-                room_type_name = data.get('room_type', 'Standard')
-
             guest, _ = Guest.objects.get_or_create(
                 phone=guest_phone if guest_phone else f'WP-{ref}',
                 defaults={'name': guest_name, 'email': guest_email}
             )
 
-            room = Room.objects.filter(room_type__icontains=room_type_name, status='Available').first() or Room.objects.first()
+            room = Room.objects.first() # Safe fallback if no specific room matched
+
+            reservation_defaults = {
+                'reservation_number': f"SNG-WP-{ref[-6:] if len(ref) >= 6 else ref}",
+                'source': 'WordPress',
+                'guest': guest,
+                'guest_name': guest_name,
+                'check_in_date': check_in,
+                'check_out_date': check_out,
+                'status': 'Confirmed'
+            }
+            if room:
+                reservation_defaults['room'] = room
 
             reservation, created = Reservation.objects.update_or_create(
                 external_reference=ref,
-                defaults={
-                    'reservation_number': f"SNG-WP-{ref[-6:] if len(ref) >= 6 else ref}",
-                    'source': 'WordPress',
-                    'guest': guest,
-                    'guest_name': guest_name,
-                    'room': room,
-                    'check_in_date': check_in,
-                    'check_out_date': check_out,
-                    'status': 'Confirmed'
-                }
+                defaults=reservation_defaults
             )
 
             return JsonResponse({
@@ -209,6 +205,8 @@ def wordpress_booking_webhook(request):
             }, status=200)
 
         except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+            import traceback
+            error_msg = f"{str(e)} | Trace: {traceback.format_exc()}"
+            return JsonResponse({'status': 'error', 'message': error_msg}, status=500)
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method. POST required.'}, status=405)
