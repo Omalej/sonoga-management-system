@@ -1,0 +1,50 @@
+services:
+  - type: web
+    name: sonoga-hms
+    runtime: docker
+    plan: free
+    region: singapore
+
+    dockerfilePath: ./Dockerfile
+
+    healthCheckPath: /health/
+
+    envVars:
+      - key: DJANGO_DEBUG
+        value: "False"
+
+      - key: DJANGO_ALLOWED_HOSTS
+        value: "sonoga-hms.onrender.com,manage.sonogahotels.com,www.manage.sonogahotels.com"
+
+      - key: DJANGO_CSRF_TRUSTED_ORIGINS
+        value: "https://sonoga-hms.onrender.com,https://manage.sonogahotels.com,https://www.manage.sonogahotels.com"
+
+      - key: POSTGRES_DB
+        fromDatabase:
+          name: sonoga-db
+          property: database
+
+      - key: POSTGRES_USER
+        fromDatabase:
+          name: sonoga-db
+          property: user
+
+      - key: POSTGRES_PASSWORD
+        fromDatabase:
+          name: sonoga-db
+          property: password
+
+      - key: POSTGRES_HOST
+        fromDatabase:
+          name: sonoga-db
+          property: host
+
+      - key: POSTGRES_PORT
+        fromDatabase:
+          name: sonoga-db
+          property: port
+
+databases:
+  - name: sonoga-db
+    plan: free
+    region: singapore
