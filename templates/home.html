@@ -1,147 +1,635 @@
-﻿{% extends "layouts/base.html" %}
+﻿```html
+{% extends "layouts/base.html" %}
 
-{% block title %}Sonoga Portals{% endblock %}
+{% block title %}Sonoga Group | Management System{% endblock %}
 
 {% block content %}
 
 <style>
-.portal-page {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 10px;
-}
+    /* =========================================================
+       SONOGA GROUP — LANDING PAGE
+       ========================================================= */
 
-.portal-header {
-    margin-bottom: 30px;
-}
+    .sonoga-page {
+        min-height: calc(100vh - 70px);
+        margin: -1px;
+        background:
+            radial-gradient(circle at 10% 10%, rgba(37, 99, 235, 0.08), transparent 30%),
+            radial-gradient(circle at 90% 20%, rgba(14, 165, 233, 0.07), transparent 28%),
+            #f8fafc;
+        color: #0f172a;
+    }
 
-.portal-header h1 {
-    margin: 0 0 8px;
-    font-size: 36px;
-}
+    /* ================= HEADER ================= */
 
-.portal-header p {
-    margin: 0;
-    opacity: .72;
-}
+    .sonoga-header {
+        width: 100%;
+        background: #0f172a;
+        color: #ffffff;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
 
-.portal-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 22px;
-}
+    .sonoga-header-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        min-height: 76px;
+        padding: 0 28px;
 
-.portal-card {
-    display: block;
-    text-decoration: none;
-    padding: 28px;
-    border-radius: 18px;
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, .06);
-    transition: transform .2s ease, box-shadow .2s ease;
-    color: inherit;
-}
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+    }
 
-.portal-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 14px 35px rgba(0, 0, 0, .10);
-}
+    .sonoga-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
 
-.portal-icon {
-    font-size: 40px;
-    margin-bottom: 16px;
-}
+    .sonoga-brand-mark {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
 
-.portal-card h2 {
-    margin: 0 0 8px;
-}
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
-.portal-card p {
-    margin: 0 0 18px;
-    opacity: .70;
-    line-height: 1.5;
-}
+        background: linear-gradient(135deg, #2563eb, #0ea5e9);
+        color: #ffffff;
+        font-size: 21px;
+        font-weight: 800;
 
-.portal-link {
-    font-weight: 700;
-}
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+    }
 
-.portal-footer {
-    margin-top: 30px;
-    padding: 18px;
-    border-radius: 14px;
-    background: #f8fafc;
-}
+    .sonoga-brand-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.15;
+    }
 
-.portal-login {
-    margin-top: 22px;
-}
+    .sonoga-brand-name {
+        font-size: 17px;
+        font-weight: 800;
+        letter-spacing: 1.2px;
+    }
 
-.portal-login a {
-    font-weight: 700;
-}
+    .sonoga-brand-subtitle {
+        margin-top: 4px;
+        color: #94a3b8;
+        font-size: 11px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+    }
+
+    .sonoga-signin {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        padding: 10px 18px;
+        border-radius: 10px;
+
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+
+        transition:
+            background .2s ease,
+            transform .2s ease,
+            border-color .2s ease;
+    }
+
+    .sonoga-signin:hover {
+        background: #2563eb;
+        border-color: #2563eb;
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+
+    /* ================= MAIN ================= */
+
+    .sonoga-main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 70px 28px 45px;
+    }
+
+    .sonoga-hero {
+        max-width: 760px;
+        margin: 0 auto 55px;
+        text-align: center;
+    }
+
+    .sonoga-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+
+        margin-bottom: 18px;
+        padding: 7px 13px;
+
+        border-radius: 999px;
+        background: #eff6ff;
+        border: 1px solid #dbeafe;
+
+        color: #2563eb;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .sonoga-hero h1 {
+        margin: 0;
+
+        font-size: clamp(34px, 5vw, 54px);
+        line-height: 1.08;
+        letter-spacing: -1.5px;
+        font-weight: 850;
+    }
+
+    .sonoga-hero h1 span {
+        display: block;
+        margin-top: 8px;
+        color: #2563eb;
+    }
+
+    .sonoga-hero p {
+        max-width: 650px;
+        margin: 22px auto 0;
+
+        color: #64748b;
+        font-size: 17px;
+        line-height: 1.7;
+    }
+
+    /* ================= PORTALS ================= */
+
+    .sonoga-section-title {
+        margin-bottom: 20px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+    }
+
+    .sonoga-section-title h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 800;
+    }
+
+    .sonoga-section-title span {
+        color: #94a3b8;
+        font-size: 13px;
+    }
+
+    .portal-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 22px;
+    }
+
+    .portal-card {
+        position: relative;
+        overflow: hidden;
+
+        display: flex;
+        flex-direction: column;
+
+        min-height: 245px;
+        padding: 28px;
+
+        border-radius: 20px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.055);
+
+        text-decoration: none;
+        color: inherit;
+
+        transition:
+            transform .25s ease,
+            box-shadow .25s ease,
+            border-color .25s ease;
+    }
+
+    .portal-card::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+
+        width: 100%;
+        height: 4px;
+
+        background: linear-gradient(90deg, #2563eb, #0ea5e9);
+
+        transform: scaleX(0);
+        transform-origin: left;
+
+        transition: transform .25s ease;
+    }
+
+    .portal-card:hover {
+        transform: translateY(-6px);
+        border-color: #bfdbfe;
+        box-shadow: 0 20px 45px rgba(15, 23, 42, 0.10);
+    }
+
+    .portal-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .portal-icon {
+        width: 56px;
+        height: 56px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        margin-bottom: 20px;
+
+        border-radius: 15px;
+        background: #eff6ff;
+
+        font-size: 27px;
+
+        transition: transform .25s ease;
+    }
+
+    .portal-card:hover .portal-icon {
+        transform: scale(1.08);
+    }
+
+    .portal-card h3 {
+        margin: 0 0 10px;
+
+        color: #0f172a;
+        font-size: 21px;
+        font-weight: 800;
+    }
+
+    .portal-card p {
+        margin: 0;
+
+        color: #64748b;
+        font-size: 14px;
+        line-height: 1.65;
+    }
+
+    .portal-action {
+        margin-top: auto;
+        padding-top: 22px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        color: #2563eb;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .portal-arrow {
+        font-size: 18px;
+        transition: transform .2s ease;
+    }
+
+    .portal-card:hover .portal-arrow {
+        transform: translateX(5px);
+    }
+
+    /* ================= FOOTER ================= */
+
+    .sonoga-footer {
+        margin-top: 50px;
+        padding: 28px;
+
+        background: #0f172a;
+        color: #ffffff;
+    }
+
+    .sonoga-footer-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .sonoga-footer-brand {
+        font-size: 15px;
+        font-weight: 800;
+        letter-spacing: .5px;
+    }
+
+    .sonoga-footer-copy {
+        margin-top: 5px;
+        color: #94a3b8;
+        font-size: 12px;
+    }
+
+    .sonoga-footer-signin {
+        color: #93c5fd;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .sonoga-footer-signin:hover {
+        color: #ffffff;
+    }
+
+    /* ================= RESPONSIVE ================= */
+
+    @media (max-width: 760px) {
+
+        .sonoga-header-inner {
+            min-height: 68px;
+            padding: 0 18px;
+        }
+
+        .sonoga-main {
+            padding: 50px 18px 35px;
+        }
+
+        .sonoga-hero {
+            margin-bottom: 40px;
+        }
+
+        .sonoga-hero h1 {
+            font-size: 36px;
+        }
+
+        .sonoga-hero p {
+            font-size: 15px;
+        }
+
+        .portal-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .portal-card {
+            min-height: 220px;
+            padding: 23px;
+        }
+
+        .sonoga-section-title span {
+            display: none;
+        }
+
+        .sonoga-footer {
+            padding: 24px 18px;
+        }
+
+        .sonoga-footer-inner {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    @media (max-width: 420px) {
+
+        .sonoga-brand-subtitle {
+            display: none;
+        }
+
+        .sonoga-brand-name {
+            font-size: 15px;
+        }
+
+        .sonoga-signin {
+            padding: 9px 13px;
+        }
+
+        .sonoga-hero h1 {
+            font-size: 31px;
+        }
+    }
 </style>
 
-<div class="portal-page">
 
-    <div class="portal-header">
-        <h1>Sonoga Group Management System</h1>
-        <p>Select the portal you need to access.</p>
-    </div>
+<div class="sonoga-page">
 
-    <div class="portal-grid">
+    <!-- ================= HEADER ================= -->
 
-        <a class="portal-card" href="/dashboard/">
-            <div class="portal-icon">👑</div>
-            <h2>CEO Portal</h2>
-            <p>
-                Group-wide management, reports, approvals,
-                controls and business performance.
-            </p>
-            <div class="portal-link">Open CEO Portal →</div>
-        </a>
+    <header class="sonoga-header">
+        <div class="sonoga-header-inner">
 
-        <a class="portal-card" href="/general-manager/">
-            <div class="portal-icon">📊</div>
-            <h2>Manager Portal</h2>
-            <p>
-                Monitor Sonoga business units, operations,
-                performance and management activities.
-            </p>
-            <div class="portal-link">Open Manager Portal →</div>
-        </a>
+            <div class="sonoga-brand">
 
-        <a class="portal-card" href="/hotel/">
-            <div class="portal-icon">🏨</div>
-            <h2>Reception Portal</h2>
-            <p>
-                Reservations, front desk operations,
-                guest management, check-in and check-out.
-            </p>
-            <div class="portal-link">Open Reception Portal →</div>
-        </a>
+                <div class="sonoga-brand-mark">
+                    SG
+                </div>
 
-        <a class="portal-card" href="/hr/">
-            <div class="portal-icon">👥</div>
-            <h2>HR Portal</h2>
-            <p>
-                Employee records, workforce management,
-                HR operations and staff administration.
-            </p>
-            <div class="portal-link">Open HR Portal →</div>
-        </a>
+                <div class="sonoga-brand-text">
+                    <div class="sonoga-brand-name">
+                        SONOGA GROUP
+                    </div>
 
-    </div>
+                    <div class="sonoga-brand-subtitle">
+                        Management System
+                    </div>
+                </div>
 
-    <div class="portal-footer">
-        <strong>Sonoga HMS</strong>
-        <div class="portal-login">
-            Already have an account?
-            <a href="/accounts/login/">Sign in</a>
+            </div>
+
+            <a class="sonoga-signin" href="/accounts/login/">
+                Sign In →
+            </a>
+
         </div>
-    </div>
+    </header>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="sonoga-main">
+
+        <section class="sonoga-hero">
+
+            <div class="sonoga-eyebrow">
+                ● Sonoga HMS
+            </div>
+
+            <h1>
+                Welcome to Sonoga Group
+                <span>Management System</span>
+            </h1>
+
+            <p>
+                One platform for managing Sonoga Group operations,
+                people, performance and business units.
+            </p>
+
+        </section>
+
+
+        <!-- ================= PORTALS ================= -->
+
+        <section>
+
+            <div class="sonoga-section-title">
+                <h2>Choose your portal</h2>
+                <span>Secure access to your management tools</span>
+            </div>
+
+
+            <div class="portal-grid">
+
+                <!-- CEO -->
+
+                <a class="portal-card" href="/dashboard/">
+
+                    <div class="portal-icon">
+                        👑
+                    </div>
+
+                    <h3>
+                        CEO Portal
+                    </h3>
+
+                    <p>
+                        Group-wide management, strategic reports,
+                        approvals, controls and overall business
+                        performance.
+                    </p>
+
+                    <div class="portal-action">
+                        <span>Open CEO Portal</span>
+                        <span class="portal-arrow">→</span>
+                    </div>
+
+                </a>
+
+
+                <!-- MANAGER -->
+
+                <a class="portal-card" href="/general-manager/">
+
+                    <div class="portal-icon">
+                        📊
+                    </div>
+
+                    <h3>
+                        Manager Portal
+                    </h3>
+
+                    <p>
+                        Monitor business units, daily operations,
+                        performance indicators and management
+                        activities.
+                    </p>
+
+                    <div class="portal-action">
+                        <span>Open Manager Portal</span>
+                        <span class="portal-arrow">→</span>
+                    </div>
+
+                </a>
+
+
+                <!-- RECEPTION -->
+
+                <a class="portal-card" href="/hotel/">
+
+                    <div class="portal-icon">
+                        🏨
+                    </div>
+
+                    <h3>
+                        Reception Portal
+                    </h3>
+
+                    <p>
+                        Manage reservations, guest information,
+                        front desk operations, check-in and
+                        check-out activities.
+                    </p>
+
+                    <div class="portal-action">
+                        <span>Open Reception Portal</span>
+                        <span class="portal-arrow">→</span>
+                    </div>
+
+                </a>
+
+
+                <!-- HR -->
+
+                <a class="portal-card" href="/hr/">
+
+                    <div class="portal-icon">
+                        👥
+                    </div>
+
+                    <h3>
+                        HR Portal
+                    </h3>
+
+                    <p>
+                        Manage employee records, workforce
+                        information, HR operations and staff
+                        administration.
+                    </p>
+
+                    <div class="portal-action">
+                        <span>Open HR Portal</span>
+                        <span class="portal-arrow">→</span>
+                    </div>
+
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer class="sonoga-footer">
+
+        <div class="sonoga-footer-inner">
+
+            <div>
+                <div class="sonoga-footer-brand">
+                    Sonoga HMS
+                </div>
+
+                <div class="sonoga-footer-copy">
+                    © 2026 Sonoga Group. All rights reserved.
+                </div>
+            </div>
+
+            <a
+                class="sonoga-footer-signin"
+                href="/accounts/login/"
+            >
+                Sign in to your account →
+            </a>
+
+        </div>
+
+    </footer>
 
 </div>
 
 {% endblock %}
+```
