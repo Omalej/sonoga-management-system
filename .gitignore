@@ -34,3 +34,29 @@ redis_data/
 
 # GitHub/local tooling
 .github/local/
+
+.sonoga_wordpress_api_key
+
+# Local backups / temporary deployment files
+*.bak
+*.backup
+*.before-*
+*.current-backup*
+*.zip
+error.txt
+restart.txt
+
+# Local WordPress configuration / test files
+wp-config*.php
+sonoga-*-test.php
+sonoga-*-check.php
+
+# Local/legacy deployment artifacts
+docker-compose.backup.yml
+requirements.backup.txt
+passenger_wsgi.deploy.py
+passenger_wsgi.remote.py
+sonoga-all-rates.php
+sonoga-hms-connector.remote.php
+sonoga-payment-methods.php
+deploy/sonoga-hms-connector.php

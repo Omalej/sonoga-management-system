@@ -1,0 +1,863 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}General Manager Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+    <!-- =========================================================
+         HEADER
+    ========================================================== -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h1 class="h3 mb-1">
+                General Manager Dashboard
+            </h1>
+
+            <p class="text-muted mb-0">
+                Consolidated performance across all Sonoga business units
+            </p>
+        </div>
+
+        <div>
+            <span class="badge bg-primary fs-6">
+                {{ start_date|date:"d M Y" }}
+                -
+                {{ end_date|date:"d M Y" }}
+            </span>
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         FILTERS
+    ========================================================== -->
+
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-body">
+
+            <form method="get"
+                  action="{% url 'general_manager_dashboard' %}"
+                  class="row g-3 align-items-end">
+
+                <!-- START DATE -->
+
+                <div class="col-md-3">
+
+                    <label for="startDate" class="form-label">
+                        Start Date
+                    </label>
+
+                    <input
+                        id="startDate"
+                        type="date"
+                        name="start"
+                        class="form-control"
+                        value="{{ start_date|date:'Y-m-d' }}"
+                    >
+
+                </div>
+
+
+                <!-- END DATE -->
+
+                <div class="col-md-3">
+
+                    <label for="endDate" class="form-label">
+                        End Date
+                    </label>
+
+                    <input
+                        id="endDate"
+                        type="date"
+                        name="end"
+                        class="form-control"
+                        value="{{ end_date|date:'Y-m-d' }}"
+                    >
+
+                </div>
+
+
+                <!-- BUSINESS UNIT -->
+
+                <div class="col-md-3">
+
+                    <label for="businessUnit" class="form-label">
+                        Business Unit
+                    </label>
+
+                    <select
+                        id="businessUnit"
+                        name="unit"
+                        class="form-select"
+                    >
+
+                        <option value="">
+                            All Business Units
+                        </option>
+
+                        {% for unit in business_units %}
+
+                            <option
+                                value="{{ unit.code }}"
+                                {% if selected_unit == unit.code %}selected{% endif %}
+                            >
+                                {{ unit.name }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- APPLY -->
+
+                <div class="col-md-3">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary w-100"
+                    >
+                        <i class="bi bi-funnel me-1"></i>
+                        Apply Filters
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            <!-- =================================================
+                 QUICK PERIODS
+            ================================================== -->
+
+            <div class="mt-3">
+
+                <span class="text-muted me-2">
+                    Quick period:
+                </span>
+
+
+                <a
+                    href="?start={{ periods.today|date:'Y-m-d' }}&end={{ periods.today|date:'Y-m-d' }}"
+                    class="btn btn-sm btn-outline-secondary"
+                >
+                    Today
+                </a>
+
+
+                <a
+                    href="?start={{ periods.month_start|date:'Y-m-d' }}&end={{ periods.today|date:'Y-m-d' }}"
+                    class="btn btn-sm btn-outline-secondary"
+                >
+                    This Month
+                </a>
+
+
+                <a
+                    href="{% url 'management_dashboard' %}"
+                    class="btn btn-sm btn-outline-secondary"
+                >
+                    Group Dashboard
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         ACTIVE FILTER
+    ========================================================== -->
+
+    {% if selected_unit %}
+
+        <div class="alert alert-info d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+                <strong>Filtered Business Unit:</strong>
+
+                {% for unit in business_units %}
+
+                    {% if unit.code == selected_unit %}
+                        {{ unit.name }}
+                    {% endif %}
+
+                {% endfor %}
+
+                <span class="text-muted ms-2">
+                    ({{ selected_unit }})
+                </span>
+            </div>
+
+            <a
+                href="{% url 'general_manager_dashboard' %}?start={{ start_date|date:'Y-m-d' }}&end={{ end_date|date:'Y-m-d' }}"
+                class="btn btn-sm btn-outline-secondary"
+            >
+                Clear Filter
+            </a>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- =========================================================
+         KPI CARDS
+    ========================================================== -->
+
+    <div class="row g-3 mb-4">
+
+
+        <!-- REVENUE -->
+
+        <div class="col-md-6 col-xl-2">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Revenue
+                    </small>
+
+                    <h4 class="mt-2 mb-0">
+                        ₦{{ totals.revenue|floatformat:2 }}
+                    </h4>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- CASH RECEIVED -->
+
+        <div class="col-md-6 col-xl-2">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Cash Received
+                    </small>
+
+                    <h4 class="mt-2 mb-0">
+                        ₦{{ totals.cash_received|floatformat:2 }}
+                    </h4>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- EXPENSES -->
+
+        <div class="col-md-6 col-xl-2">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Expenses
+                    </small>
+
+                    <h4 class="mt-2 mb-0">
+                        ₦{{ totals.expenses|floatformat:2 }}
+                    </h4>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- PAYROLL -->
+
+        <div class="col-md-6 col-xl-2">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Payroll
+                    </small>
+
+                    <h4 class="mt-2 mb-0">
+                        ₦{{ totals.payroll|floatformat:2 }}
+                    </h4>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- RECEIVABLES -->
+
+        <div class="col-md-6 col-xl-2">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Receivables
+                    </small>
+
+                    <h4 class="mt-2 mb-0">
+                        ₦{{ totals.receivables|floatformat:2 }}
+                    </h4>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- OPERATING RESULT -->
+
+        <div class="col-md-6 col-xl-2">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        Operating Result
+                    </small>
+
+                    <h4 class="mt-2 mb-0">
+
+                        {% if totals.operating_result >= 0 %}
+
+                            <span class="text-success">
+                                ₦{{ totals.operating_result|floatformat:2 }}
+                            </span>
+
+                        {% else %}
+
+                            <span class="text-danger">
+                                ₦{{ totals.operating_result|floatformat:2 }}
+                            </span>
+
+                        {% endif %}
+
+                    </h4>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         CHART
+    ========================================================== -->
+
+    <div class="card shadow-sm border-0 mb-4">
+
+        <div class="card-header bg-white py-3">
+
+            <h5 class="mb-0">
+                Business Unit Performance
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <div style="height: 350px;">
+
+                <canvas id="businessPerformanceChart"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         BUSINESS UNIT TABLE
+    ========================================================== -->
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-header bg-white py-3">
+
+            <h5 class="mb-0">
+                Business Unit Performance
+            </h5>
+
+        </div>
+
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+
+                        <tr>
+
+                            <th>
+                                Business Unit
+                            </th>
+
+                            <th>
+                                Revenue
+                            </th>
+
+                            <th>
+                                Cash Received
+                            </th>
+
+                            <th>
+                                Expenses
+                            </th>
+
+                            <th>
+                                Payroll
+                            </th>
+
+                            <th>
+                                Receivables
+                            </th>
+
+                            <th>
+                                Operating Result
+                            </th>
+
+                            <th>
+                                Operations
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    {% for row in rows %}
+
+                        <tr>
+
+                            <!-- BUSINESS UNIT -->
+
+                            <td>
+
+                                <strong>
+                                    {{ row.business_unit.name }}
+                                </strong>
+
+                                <br>
+
+                                <small class="text-muted">
+                                    {{ row.business_unit.code }}
+                                </small>
+
+                            </td>
+
+
+                            <!-- REVENUE -->
+
+                            <td>
+                                ₦{{ row.revenue|floatformat:2 }}
+                            </td>
+
+
+                            <!-- CASH -->
+
+                            <td>
+                                ₦{{ row.cash_received|floatformat:2 }}
+                            </td>
+
+
+                            <!-- EXPENSES -->
+
+                            <td>
+                                ₦{{ row.expenses|floatformat:2 }}
+                            </td>
+
+
+                            <!-- PAYROLL -->
+
+                            <td>
+                                ₦{{ row.payroll|floatformat:2 }}
+                            </td>
+
+
+                            <!-- RECEIVABLES -->
+
+                            <td>
+                                ₦{{ row.receivables|floatformat:2 }}
+                            </td>
+
+
+                            <!-- OPERATING RESULT -->
+
+                            <td>
+
+                                {% if row.operating_result > 0 %}
+
+                                    <strong class="text-success">
+                                        ₦{{ row.operating_result|floatformat:2 }}
+                                    </strong>
+
+                                {% elif row.operating_result < 0 %}
+
+                                    <strong class="text-danger">
+                                        ₦{{ row.operating_result|floatformat:2 }}
+                                    </strong>
+
+                                {% else %}
+
+                                    ₦0.00
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- OPERATIONS -->
+
+                            <td>
+
+                                {% if row.operations %}
+
+                                    {% if row.operations.occupied_rooms is not None %}
+
+                                        <span class="badge bg-info text-dark">
+
+                                            Rooms:
+                                            {{ row.operations.occupied_rooms }}
+                                            /
+                                            {{ row.operations.total_rooms }}
+
+                                        </span>
+
+                                    {% else %}
+
+                                        {% for key, value in row.operations.items %}
+
+                                            <span class="badge bg-secondary me-1">
+
+                                                {{ key }}:
+                                                {{ value }}
+
+                                            </span>
+
+                                        {% endfor %}
+
+                                    {% endif %}
+
+                                {% else %}
+
+                                    <span class="text-muted">
+                                        No data
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+
+                    {% empty %}
+
+                        <tr>
+
+                            <td
+                                colspan="8"
+                                class="text-center py-5"
+                            >
+
+                                <span class="text-muted">
+                                    No business unit data available.
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+
+                    <!-- TOTAL -->
+
+                    <tfoot class="table-light">
+
+                        <tr>
+
+                            <th>
+                                TOTAL
+                            </th>
+
+                            <th>
+                                ₦{{ totals.revenue|floatformat:2 }}
+                            </th>
+
+                            <th>
+                                ₦{{ totals.cash_received|floatformat:2 }}
+                            </th>
+
+                            <th>
+                                ₦{{ totals.expenses|floatformat:2 }}
+                            </th>
+
+                            <th>
+                                ₦{{ totals.payroll|floatformat:2 }}
+                            </th>
+
+                            <th>
+                                ₦{{ totals.receivables|floatformat:2 }}
+                            </th>
+
+                            <th>
+                                ₦{{ totals.operating_result|floatformat:2 }}
+                            </th>
+
+                            <th>
+                                —
+                            </th>
+
+                        </tr>
+
+                    </tfoot>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         MANAGEMENT INFORMATION
+    ========================================================== -->
+
+    <div class="row g-3 mt-4">
+
+
+        <!-- MANAGEMENT OVERVIEW -->
+
+        <div class="col-md-6">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <h5>
+                        Management Overview
+                    </h5>
+
+                    <p class="text-muted mb-0">
+
+                        Monitor revenue, cash collections, expenses,
+                        payroll, receivables and operating performance
+                        across the Sonoga Group.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- CURRENT VIEW -->
+
+        <div class="col-md-6">
+
+            <div class="card shadow-sm border-0 h-100">
+
+                <div class="card-body">
+
+                    <h5>
+                        Current View
+                    </h5>
+
+                    <p class="mb-1">
+
+                        <strong>
+                            Period:
+                        </strong>
+
+                        {{ start_date|date:"d M Y" }}
+                        -
+                        {{ end_date|date:"d M Y" }}
+
+                    </p>
+
+
+                    <p class="mb-0">
+
+                        <strong>
+                            Business Unit:
+                        </strong>
+
+                        {% if selected_unit %}
+
+                            {% for unit in business_units %}
+
+                                {% if unit.code == selected_unit %}
+                                    {{ unit.name }}
+                                {% endif %}
+
+                            {% endfor %}
+
+                        {% else %}
+
+                            All Business Units
+
+                        {% endif %}
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     CHART.JS
+============================================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const chartElement = document.getElementById(
+        "businessPerformanceChart"
+    );
+
+    if (!chartElement) {
+        return;
+    }
+
+
+    const chartLabels = {{ chart_labels|safe }};
+    const chartRevenue = {{ chart_revenue|safe }};
+    const chartExpenses = {{ chart_expenses|safe }};
+    const chartProfit = {{ chart_profit|safe }};
+
+
+    new Chart(chartElement, {
+
+        type: "bar",
+
+        data: {
+
+            labels: chartLabels,
+
+            datasets: [
+
+                {
+                    label: "Revenue",
+                    data: chartRevenue
+                },
+
+                {
+                    label: "Expenses",
+                    data: chartExpenses
+                },
+
+                {
+                    label: "Operating Result",
+                    data: chartProfit
+                }
+
+            ]
+
+        },
+
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            interaction: {
+                mode: "index",
+                intersect: false
+            },
+
+            plugins: {
+
+                legend: {
+                    position: "top"
+                }
+
+            },
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true,
+
+                    ticks: {
+
+                        callback: function(value) {
+
+                            return "₦" +
+                                Number(value).toLocaleString();
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+});
+
+</script>
+
+{% endblock %}

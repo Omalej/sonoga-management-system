@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sonoga Management System - Master Dashboard</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1200px; margin: auto; }
+        .header { background: #2c3e50; color: white; padding: 20px 25px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .header h1 { margin: 0; font-size: 22px; }
+        .header p { margin: 3px 0 0; color: #bdc3c7; font-size: 13px; }
+        .user-nav a { color: white; background: #e74c3c; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 13px; font-weight: bold; }
+        .user-nav a:hover { background: #c0392b; }
+        
+        h2 { color: #2c3e50; margin-top: 25px; font-size: 18px; border-bottom: 2px solid #ddd; padding-bottom: 6px; }
+        
+        /* Module Grid */
+        .modules-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-top: 15px; }
+        .module-card { background: white; padding: 18px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 5px solid #3498db; transition: transform 0.2s, box-shadow 0.2s; text-decoration: none; color: inherit; display: block; }
+        .module-card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
+        .module-card h3 { margin: 0 0 5px 0; color: #2c3e50; font-size: 16px; }
+        .module-card p { margin: 0; color: #7f8c8d; font-size: 12px; line-height: 1.3; }
+        
+        .card-hotel { border-left-color: #e67e22; }
+        .card-finance { border-left-color: #27ae60; }
+        .card-hr { border-left-color: #8e44ad; }
+        .card-inventory { border-left-color: #2980b9; }
+        .card-payroll { border-left-color: #16a085; }
+        .card-procurement { border-left-color: #d35400; }
+        .card-factory { border-left-color: #7f8c8d; }
+        .card-control { border-left-color: #c0392b; }
+        .card-admin { border-left-color: #34495e; }
+
+        /* Report & Filter Section */
+        .filter-section { background: white; padding: 15px 20px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-top: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .filter-section form { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .filter-section input, .filter-section button { padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
+        .filter-section button { background: #2c3e50; color: white; border: none; cursor: pointer; }
+        .filter-section button:hover { background: #34495e; }
+        .export-btn { background: #27ae60 !important; text-decoration: none; color: white; padding: 6px 12px; border-radius: 4px; font-size: 13px; }
+        
+        /* Summary Cards */
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; }
+        .summary-card { background: white; padding: 12px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; }
+        .summary-card h4 { margin: 0; font-size: 12px; color: #7f8c8d; }
+        .summary-card p { margin: 5px 0 0; font-size: 16px; font-weight: bold; color: #2c3e50; }
+
+        /* Table */
+        .table-container { background: white; padding: 15px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-top: 15px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; border: 1px solid #e2e8f0; text-align: left; font-size: 13px; }
+        th { background-color: #2c3e50; color: white; }
+        tr:nth-child(even) { background-color: #f8fafc; }
+        
+        .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #95a5a6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>Sonoga Management System</h1>
+                <p>Centralized Operations & Financial Control</p>
+            </div>
+            <div class="user-nav">
+                <span>{{ request.user.username }}</span> | <a href="/accounts/logout/">Sign out</a>
+            </div>
+        </div>
+
+        <h2>Quick-Access Department Modules</h2>
+        <div class="modules-grid">
+            <a href="/hotel/" class="module-card card-hotel">
+                <h3>Hotel Management</h3>
+                <p>Rooms, reservations, check-ins, guest folios, and housekeeping.</p>
+            </a>
+            <a href="/finance/" class="module-card card-finance">
+                <h3>Finance & Accounts</h3>
+                <p>General ledgers, business unit accounts, and transactions.</p>
+            </a>
+            <a href="/hr/" class="module-card card-hr">
+                <h3>Human Resources</h3>
+                <p>Staff directory, departments, records, and personnel.</p>
+            </a>
+            <a href="/inventory/" class="module-card card-inventory">
+                <h3>Inventory Control</h3>
+                <p>Stock levels, warehouse items, supply tracking, and assets.</p>
+            </a>
+            <a href="/payroll/" class="module-card card-payroll">
+                <h3>Payroll Management</h3>
+                <p>Salaries, allowances, deductions, and payment runs.</p>
+            </a>
+            <a href="/procurement/" class="module-card card-procurement">
+                <h3>Procurement</h3>
+                <p>Purchase orders, vendor requests, and supply chain purchasing.</p>
+            </a>
+            <a href="/factory/" class="module-card card-factory">
+                <h3>Factory Operations</h3>
+                <p>Water & bread production tracking, logs, and output records.</p>
+            </a>
+            <a href="/control/" class="module-card card-control">
+                <h3>System Controls</h3>
+                <p>System configuration logs, audit trails, and security oversight.</p>
+            </a>
+            <a href="/admin/" class="module-card card-admin">
+                <h3>Django Admin Panel</h3>
+                <p>Master backend database control center for all records.</p>
+            </a>
+        </div>
+
+        <h2>Group Financial Overview</h2>
+        
+        <div class="filter-section">
+            <form method="get">
+                <label for="start">Start:</label>
+                <input type="date" id="start" name="start" value="{{ request.GET.start }}">
+                <label for="end">End:</label>
+                <input type="date" id="end" name="end" value="{{ request.GET.end }}">
+                <button type="submit">Run Report</button>
+            </form>
+            <div>
+                <a href="{% url 'reports:management_csv' %}?start={{ request.GET.start }}&end={{ request.GET.end }}" class="export-btn">Export CSV</a>
+            </div>
+        </div>
+
+        <div class="summary-grid">
+            <div class="summary-card">
+                <h4>Revenue</h4>
+                <p>?{{ totals.revenue }}</p>
+            </div>
+            <div class="summary-card">
+                <h4>Cash Received</h4>
+                <p>?{{ totals.cash_received }}</p>
+            </div>
+            <div class="summary-card">
+                <h4>Receivables</h4>
+                <p>?{{ totals.receivables }}</p>
+            </div>
+            <div class="summary-card">
+                <h4>Expenses</h4>
+                <p>?{{ totals.expenses }}</p>
+            </div>
+            <div class="summary-card">
+                <h4>Payroll</h4>
+                <p>?{{ totals.payroll }}</p>
+            </div>
+            <div class="summary-card">
+                <h4>Operating Result</h4>
+                <p>?{{ totals.operating_result }}</p>
+            </div>
+        </div>
+
+        <h2>Business Unit Performance</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Business Unit</th>
+                        <th>Revenue</th>
+                        <th>Cash</th>
+                        <th>Receivables</th>
+                        <th>Expenses</th>
+                        <th>Payroll</th>
+                        <th>Operating Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    <tr>
+                        <td><strong>{{ row.business_unit.name }}</strong></td>
+                        <td>?{{ row.revenue }}</td>
+                        <td>?{{ row.cash_received }}</td>
+                        <td>?{{ row.receivables }}</td>
+                        <td>?{{ row.expenses }}</td>
+                        <td>?{{ row.payroll }}</td>
+                        <td>?{{ row.operating_result }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center;">No active business units found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            <p>Sonoga Management System | All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

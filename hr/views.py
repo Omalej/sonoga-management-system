@@ -29,12 +29,6 @@ def employee_create(request):
     form = EmployeeForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         employee = form.save()
-        messages.success(request, f"Employee {str(employee)} created.")
+        messages.success(request, f"Employee {employee.full_name} created.")
         return redirect("hr:employees")
     return render(request, "layouts/form_page.html", {"form": form, "title": "Add Employee", "cancel_url": "/hr/employees/"})
-
-from django.shortcuts import get_object_or_404
-
-def employee_detail(request, pk):
-    employee = get_object_or_404(Employee, pk=pk)
-    return render(request, 'hr/employee_detail.html', {'employee': employee})

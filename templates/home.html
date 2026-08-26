@@ -1,5 +1,147 @@
-{% extends "layouts/base.html" %}
+﻿{% extends "layouts/base.html" %}
+
+{% block title %}Sonoga Portals{% endblock %}
+
 {% block content %}
-<div class="page-head"><div><h1>Sonoga Group Management System</h1><p>Your account is active, but no operational role has been assigned yet.</p></div></div>
-<div class="panel"><p>Ask the system administrator to assign your Sonoga role and business unit.</p></div>
+
+<style>
+.portal-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+.portal-header {
+    margin-bottom: 30px;
+}
+
+.portal-header h1 {
+    margin: 0 0 8px;
+    font-size: 36px;
+}
+
+.portal-header p {
+    margin: 0;
+    opacity: .72;
+}
+
+.portal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 22px;
+}
+
+.portal-card {
+    display: block;
+    text-decoration: none;
+    padding: 28px;
+    border-radius: 18px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, .06);
+    transition: transform .2s ease, box-shadow .2s ease;
+    color: inherit;
+}
+
+.portal-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 35px rgba(0, 0, 0, .10);
+}
+
+.portal-icon {
+    font-size: 40px;
+    margin-bottom: 16px;
+}
+
+.portal-card h2 {
+    margin: 0 0 8px;
+}
+
+.portal-card p {
+    margin: 0 0 18px;
+    opacity: .70;
+    line-height: 1.5;
+}
+
+.portal-link {
+    font-weight: 700;
+}
+
+.portal-footer {
+    margin-top: 30px;
+    padding: 18px;
+    border-radius: 14px;
+    background: #f8fafc;
+}
+
+.portal-login {
+    margin-top: 22px;
+}
+
+.portal-login a {
+    font-weight: 700;
+}
+</style>
+
+<div class="portal-page">
+
+    <div class="portal-header">
+        <h1>Sonoga Group Management System</h1>
+        <p>Select the portal you need to access.</p>
+    </div>
+
+    <div class="portal-grid">
+
+        <a class="portal-card" href="/dashboard/">
+            <div class="portal-icon">👑</div>
+            <h2>CEO Portal</h2>
+            <p>
+                Group-wide management, reports, approvals,
+                controls and business performance.
+            </p>
+            <div class="portal-link">Open CEO Portal →</div>
+        </a>
+
+        <a class="portal-card" href="/general-manager/">
+            <div class="portal-icon">📊</div>
+            <h2>Manager Portal</h2>
+            <p>
+                Monitor Sonoga business units, operations,
+                performance and management activities.
+            </p>
+            <div class="portal-link">Open Manager Portal →</div>
+        </a>
+
+        <a class="portal-card" href="/hotel/">
+            <div class="portal-icon">🏨</div>
+            <h2>Reception Portal</h2>
+            <p>
+                Reservations, front desk operations,
+                guest management, check-in and check-out.
+            </p>
+            <div class="portal-link">Open Reception Portal →</div>
+        </a>
+
+        <a class="portal-card" href="/hr/">
+            <div class="portal-icon">👥</div>
+            <h2>HR Portal</h2>
+            <p>
+                Employee records, workforce management,
+                HR operations and staff administration.
+            </p>
+            <div class="portal-link">Open HR Portal →</div>
+        </a>
+
+    </div>
+
+    <div class="portal-footer">
+        <strong>Sonoga HMS</strong>
+        <div class="portal-login">
+            Already have an account?
+            <a href="/accounts/login/">Sign in</a>
+        </div>
+    </div>
+
+</div>
+
 {% endblock %}

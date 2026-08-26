@@ -1,14 +1,12 @@
-﻿from django.conf import settings
+from django.conf import settings
 from django.db import models
 from core.models import TimeStampedModel
 
 class BusinessUnit(TimeStampedModel):
     class UnitType(models.TextChoices):
-        HEAD_OFFICE = "HEAD_OFFICE", "Head Office"
-        HOTEL = "HOTEL", "Sonoga Hotels"
+        HOTEL = "HOTEL", "Hotel"
         WATER = "WATER", "Pure Water Factory"
         BREAD = "BREAD", "Bread Factory"
-        ENERGY = "ENERGY", "Crown Field Energy"
         OTHER = "OTHER", "Other"
 
     code = models.CharField(max_length=20, unique=True)
@@ -34,23 +32,9 @@ class BusinessUnit(TimeStampedModel):
 
 class Department(TimeStampedModel):
     business_unit = models.ForeignKey(BusinessUnit, on_delete=models.PROTECT, related_name="departments")
-    parent = models.ForeignKey(
-        "self",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="sub_departments",
-    )
     code = models.CharField(max_length=30)
     name = models.CharField(max_length=120)
     description = models.TextField(blank=True)
-    head = models.ForeignKey(
-        "hr.Employee",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="headed_departments",
-    )
     is_active = models.BooleanField(default=True)
 
     class Meta:
@@ -61,25 +45,21 @@ class Department(TimeStampedModel):
         ]
 
     def __str__(self):
-        parent_str = f" ({self.parent.name})" if self.parent else ""
-        return f"{self.business_unit.code} - {self.name}{parent_str}"
+        return f"{self.business_unit.code} - {self.name}"
 
 class Position(TimeStampedModel):
-    business_unit = models.ForeignKey(BusinessUnit, on_delete=models.PROTECT, related_name="positions", null=True, blank=True)
+    business_unit = models.ForeignKey(BusinessUnit, on_delete=models.PROTECT, related_name="positions")
     department = models.ForeignKey(Department, on_delete=models.PROTECT, related_name="positions")
     name = models.CharField(max_length=120)
     description = models.TextField(blank=True)
-    reports_to = models.ForeignKey(
-        "self",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="subordinate_positions",
-    )
+    reports_to = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, blank=True, related_name="direct_reports")
     is_active = models.BooleanField(default=True)
 
     class Meta:
-        ordering = ["department__name", "name"]
+        ordering = ["business_unit__name", "department__name", "name"]
+        constraints = [
+            models.UniqueConstraint(fields=["department", "name"], name="uniq_position_name_per_department"),
+        ]
 
     def __str__(self):
-        return f"{self.name} ({self.department.name})"
+        return f"{self.department.name} - {self.name}"

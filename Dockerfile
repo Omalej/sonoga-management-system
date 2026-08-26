@@ -1,4 +1,4 @@
-FROM python:3.13-slim
+﻿FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -16,5 +16,7 @@ RUN python -m pip install --no-cache-dir -r /app/requirements.txt
 COPY . /app
 RUN chmod +x /app/deploy/entrypoint.sh
 
-ENTRYPOINT ["/app/deploy/entrypoint.sh"]
-CMD ["gunicorn", "sonoga_hms.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "60", "--access-logfile", "-", "--error-logfile", "-"]
+ENTRYPOINT ["sh","/app/deploy/entrypoint.sh"]
+CMD ["sh", "-c", "exec gunicorn sonoga_hms.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3 --timeout 60 --access-logfile - --error-logfile -"]
+
+
