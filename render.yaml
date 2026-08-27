@@ -3,7 +3,7 @@
     name: sonoga-hms
     runtime: docker
     plan: free
-    region: singapore
+    region: frankfurt
 
     dockerfilePath: ./Dockerfile
 
