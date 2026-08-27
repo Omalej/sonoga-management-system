@@ -1,4 +1,4 @@
-services:
+﻿services:
   - type: web
     name: sonoga-hms
     runtime: docker
@@ -23,16 +23,26 @@ services:
         value: "https://sonoga-hms.onrender.com,https://manage.sonogahotels.com,https://www.manage.sonogahotels.com"
 
       - key: POSTGRES_DB
-        sync: false
+        fromDatabase:
+          name: sonoga-hms-db
+          property: database
 
       - key: POSTGRES_USER
-        sync: false
+        fromDatabase:
+          name: sonoga-hms-db
+          property: user
 
       - key: POSTGRES_PASSWORD
-        sync: false
+        fromDatabase:
+          name: sonoga-hms-db
+          property: password
 
       - key: POSTGRES_HOST
-        sync: false
+        fromDatabase:
+          name: sonoga-hms-db
+          property: host
 
       - key: POSTGRES_PORT
-        value: "5432"
+        fromDatabase:
+          name: sonoga-hms-db
+          property: port
