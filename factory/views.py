@@ -20,16 +20,63 @@ from .services import approve_production_batch
 
 
 def _factory_unit(request, code=None):
+    """
+    Resolve the factory business unit for the current request.
+
+    Group Management and superusers may explicitly access any active
+    BREAD/WATER business unit by code.
+
+    Factory employees are restricted to their assigned factory.
+    """
+
     employee_unit = business_unit_for(request.user)
-    if employee_unit and employee_unit.unit_type in {BusinessUnit.UnitType.WATER, BusinessUnit.UnitType.BREAD}:
-        if code and code != employee_unit.code and not request.user.is_superuser and not has_any_role(request.user, GROUP_MANAGEMENT):
+
+    # ------------------------------------------------------------
+    # GROUP MANAGEMENT / SUPERUSER
+    # ------------------------------------------------------------
+    # These users can explicitly select Mabinas Water (MW001)
+    # or Mabinas Bread (MB001).
+    if request.user.is_superuser or has_any_role(request.user, GROUP_MANAGEMENT):
+        qs = BusinessUnit.objects.filter(
+            unit_type__in=[
+                BusinessUnit.UnitType.WATER,
+                BusinessUnit.UnitType.BREAD,
+            ],
+            is_active=True,
+        )
+
+        if code:
+            return get_object_or_404(qs, code=code)
+
+        return qs.order_by("code").first()
+
+    # ------------------------------------------------------------
+    # FACTORY EMPLOYEE
+    # ------------------------------------------------------------
+    if employee_unit and employee_unit.unit_type in {
+        BusinessUnit.UnitType.WATER,
+        BusinessUnit.UnitType.BREAD,
+    }:
+        if code and code != employee_unit.code:
             raise PermissionDenied
+
         return employee_unit
-    qs = BusinessUnit.objects.filter(unit_type__in=[BusinessUnit.UnitType.WATER, BusinessUnit.UnitType.BREAD], is_active=True)
+
+    # ------------------------------------------------------------
+    # FALLBACK
+    # ------------------------------------------------------------
+    qs = BusinessUnit.objects.filter(
+        unit_type__in=[
+            BusinessUnit.UnitType.WATER,
+            BusinessUnit.UnitType.BREAD,
+        ],
+        is_active=True,
+    )
+
     if code:
         return get_object_or_404(qs, code=code)
-    return qs.order_by("code").first()
 
+    return qs.order_by("code").first()
 
 @role_required(WATER_MANAGER, BREAD_MANAGER, PRODUCTION_SUPERVISOR, STOREKEEPER, SALES_OFFICER, GROUP_MANAGEMENT)
 def factory_dashboard(request, code=None):

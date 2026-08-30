@@ -3,10 +3,17 @@
 <div class="app-shell"><aside class="sidebar"><a class="brand" href="/">SONOGA <span>GROUP</span></a><div class="sidebar-label">Management System</div><nav>
 {% if sonoga_nav.group %}<a href="/dashboard/">Group Dashboard</a><a href="/reports/">Reports</a>{% endif %}
 {% if sonoga_nav.hotel %}<div class="nav-heading">Hotel</div>{% if sonoga_nav.hotel_frontdesk %}<a href="/hotel/">Hotel Dashboard</a><a href="/hotel/reservations/">Reservations</a>{% endif %}{% if sonoga_nav.housekeeping %}<a href="/hotel/housekeeping/">Housekeeping</a>{% endif %}{% endif %}
-{% if sonoga_nav.factory %}<div class="nav-heading">Factories</div>{% if sonoga_nav.unit and sonoga_nav.unit.unit_type == 'WATER' or sonoga_nav.group %}<a href="/factory/WATER/">Pure Water</a>{% endif %}{% if sonoga_nav.unit and sonoga_nav.unit.unit_type == 'BREAD' or sonoga_nav.group %}<a href="/factory/BREAD/">Bread Factory</a>{% endif %}{% endif %}
+{% if sonoga_nav.factory %}
+<div class="nav-heading">Factories</div>
+<a href="/factory/MW001/">Mabinas Water</a>
+<a href="/factory/MB001/">Mabinas Bread</a>
+{% if sonoga_nav.group %}
+<a href="/dashboard/?unit=CF001">Crown Field</a>
+{% endif %}
+{% endif %}
 {% if sonoga_nav.inventory %}<div class="nav-heading">Stock & Buying</div><a href="/inventory/">Inventory</a>{% endif %}{% if sonoga_nav.procurement %}<a href="/procurement/">Procurement</a>{% endif %}
 {% if sonoga_nav.finance %}<div class="nav-heading">Finance</div><a href="/finance/">Finance Dashboard</a><a href="/finance/expenses/">Expenses</a>{% endif %}{% if sonoga_nav.payroll %}<a href="/payroll/">Payroll</a>{% endif %}
 {% if sonoga_nav.hr %}<div class="nav-heading">HR</div><a href="/hr/">HR Dashboard</a><a href="/hr/employees/">Employees</a>{% endif %}
-{% if sonoga_nav.approvals or sonoga_nav.notifications or sonoga_nav.audit %}<div class="nav-heading">Control</div>{% endif %}{% if sonoga_nav.approvals %}<a href="/control/approvals/">Approvals</a>{% endif %}{% if sonoga_nav.notifications %}<a href="/control/notifications/">Notifications</a>{% endif %}{% if sonoga_nav.audit %}<a href="/control/audit/">Audit Log</a>{% endif %}
+{% if sonoga_nav.approvals or sonoga_nav.notifications or sonoga_nav.audit %}<div class="nav-heading">Control</div><a href="/control/">Control Dashboard</a>{% endif %}{% if sonoga_nav.approvals %}<a href="/control/approvals/">Approvals</a>{% endif %}{% if sonoga_nav.notifications %}<a href="/control/notifications/">Notifications</a>{% endif %}{% if sonoga_nav.audit %}<a href="/control/audit/">Audit Log</a>{% endif %}
 {% if sonoga_nav.admin %}<div class="nav-heading">System</div><a href="/admin/">Administration</a>{% endif %}
 </nav></aside><section class="content-shell"><header class="topbar"><div>{% if sonoga_nav.unit %}<span class="unit-pill">{{ sonoga_nav.unit.name }}</span>{% else %}<span class="unit-pill">Sonoga Group</span>{% endif %}</div><div class="userbox"><span>{{ request.user.get_full_name|default:request.user.username }}</span><form method="post" action="/accounts/logout/">{% csrf_token %}<button class="link-button" type="submit">Sign out</button></form></div></header><main class="content">{% if messages %}<div class="messages">{% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}{% block content %}{% endblock %}</main></section></div></body></html>

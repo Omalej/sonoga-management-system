@@ -1,0 +1,157 @@
+﻿{% extends "layouts/base.html" %}
+
+{% block title %}Control Dashboard - Sonoga Group{% endblock %}
+
+{% block content %}
+
+<style>
+.control-page {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.control-header {
+    margin-bottom: 28px;
+}
+
+.control-header h1 {
+    margin: 0 0 8px;
+    font-size: 30px;
+    color: #111827;
+}
+
+.control-header p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.control-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.control-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 24px;
+    min-height: 170px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    transition: transform .15s ease,
+                box-shadow .15s ease,
+                border-color .15s ease;
+}
+
+.control-card:hover {
+    transform: translateY(-3px);
+    border-color: #cbd5e1;
+    box-shadow: 0 10px 25px rgba(0,0,0,.08);
+}
+
+.control-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 23px;
+    margin-bottom: 18px;
+}
+
+.control-card h2 {
+    margin: 0 0 8px;
+    font-size: 18px;
+    color: #111827;
+}
+
+.control-number {
+    display: block;
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 8px;
+}
+
+.control-card p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+    .control-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<div class="control-page">
+
+    <div class="control-header">
+        <h1>Control Dashboard</h1>
+        <p>
+            Executive controls, approvals, audit visibility and operational notifications.
+        </p>
+    </div>
+
+    <div class="control-grid">
+
+        <a href="/control/approvals/" class="control-card">
+
+            <div class="control-icon">✓</div>
+
+            <h2>Approvals</h2>
+
+            <span class="control-number">
+                {{ pending_approvals }}
+            </span>
+
+            <p>
+                Requests awaiting review and approval.
+            </p>
+
+        </a>
+
+
+        <a href="/control/notifications/" class="control-card">
+
+            <div class="control-icon">🔔</div>
+
+            <h2>Notifications</h2>
+
+            <p>
+                Operational alerts requiring attention.
+            </p>
+
+        </a>
+
+
+        <a href="/control/audit/" class="control-card">
+
+            <div class="control-icon">📋</div>
+
+            <h2>Audit Log</h2>
+
+            <span class="control-number">
+                {{ audit_events }}
+            </span>
+
+            <p>
+                System activity and audit history.
+            </p>
+
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

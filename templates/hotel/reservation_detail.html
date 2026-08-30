@@ -1,9 +1,173 @@
-{% extends "layouts/base.html" %}
+﻿{% extends "layouts/base.html" %}
+
 {% block title %}{{ reservation.reservation_number }} · Sonoga{% endblock %}
+
 {% block content %}
-<div class="page-head"><div><h1>{{ reservation.reservation_number }}</h1><p>{{ reservation.guest.full_name }} · {{ reservation.get_source_display }}{% if reservation.external_reference %} · External {{ reservation.external_reference }}{% endif %}</p></div><div class="actions">{% if reservation.status == 'CONFIRMED' or reservation.status == 'PENDING' %}<a class="btn primary" href="/hotel/reservations/{{ reservation.id }}/check-in/">Check In</a>{% endif %}</div></div>
-<div class="detail-grid">
-  <div class="panel"><h2>Stay Details</h2><dl><dt>Room Type</dt><dd>{{ reservation.room_type.name }}</dd><dt>Assigned Room</dt><dd>{{ reservation.assigned_room|default:"Not assigned" }}</dd><dt>Arrival</dt><dd>{{ reservation.arrival_date }}</dd><dt>Departure</dt><dd>{{ reservation.departure_date }}</dd><dt>Nights</dt><dd>{{ reservation.nights }}</dd><dt>Status</dt><dd>{{ reservation.get_status_display }}</dd></dl></div>
-  <div class="panel"><h2>Financial</h2><dl><dt>Nightly Rate</dt><dd>₦{{ reservation.nightly_rate|floatformat:2 }}</dd><dt>Accommodation Total</dt><dd>₦{{ reservation.accommodation_total|floatformat:2 }}</dd></dl><h3>Pre-arrival Payments</h3>{% for p in payments %}<div class="line-item"><span>{{ p.get_method_display }} · {{ p.reference }}</span><strong>₦{{ p.amount|floatformat:2 }}</strong></div>{% empty %}<p class="muted">No reservation payments.</p>{% endfor %}</div>
+
+<div class="page-head">
+    <div>
+        <h1>{{ reservation.reservation_number }}</h1>
+
+        <p>
+            {{ reservation.guest.full_name }}
+            · {{ reservation.get_source_display }}
+
+            {% if reservation.external_reference %}
+                · External {{ reservation.external_reference }}
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="actions">
+
+        {% if reservation.status == 'CONFIRMED' or reservation.status == 'PENDING' %}
+            <a
+                class="btn primary"
+                href="{% url 'hotel:reservation_paystack' reservation.id %}"
+            >
+                💳 Pay Now
+            </a>
+
+            <a
+                class="btn primary"
+                href="{% url 'hotel:reservation_checkin' reservation.id %}"
+            >
+                Check In
+            </a>
+        {% endif %}
+
+    </div>
 </div>
+
+<div class="detail-grid">
+
+    <div class="panel">
+        <h2>Stay Details</h2>
+
+        <dl>
+            <dt>Guest</dt>
+            <dd>{{ reservation.guest.full_name }}</dd>
+
+            <dt>Room Type</dt>
+            <dd>{{ reservation.room_type.name }}</dd>
+
+            <dt>Assigned Room</dt>
+            <dd>{{ reservation.assigned_room|default:"Not assigned" }}</dd>
+
+            <dt>Arrival</dt>
+            <dd>{{ reservation.arrival_date }}</dd>
+
+            <dt>Departure</dt>
+            <dd>{{ reservation.departure_date }}</dd>
+
+            <dt>Nights</dt>
+            <dd>{{ reservation.nights }}</dd>
+
+            <dt>Status</dt>
+            <dd>{{ reservation.get_status_display }}</dd>
+        </dl>
+    </div>
+
+
+    <div class="panel">
+        <h2>Financial</h2>
+
+        <dl>
+            <dt>Nightly Rate</dt>
+            <dd>
+                ₦{{ reservation.nightly_rate|floatformat:2 }}
+            </dd>
+
+            <dt>Accommodation Total</dt>
+            <dd>
+                ₦{{ reservation.accommodation_total|floatformat:2 }}
+            </dd>
+        </dl>
+
+        <h3>Pre-arrival Payments</h3>
+
+        {% for p in payments %}
+            <div class="line-item">
+
+                <span>
+                    {{ p.get_method_display }}
+                    · {{ p.reference }}
+                    · {{ p.get_status_display }}
+                </span>
+
+                <strong>
+                    ₦{{ p.amount|floatformat:2 }}
+                </strong>
+
+            </div>
+        {% empty %}
+            <p class="muted">
+                No reservation payments.
+            </p>
+        {% endfor %}
+
+        {% if reservation.status == 'CONFIRMED' or reservation.status == 'PENDING' %}
+            <div style="margin-top: 20px;">
+
+                <a
+                    class="btn primary"
+                    href="{% url 'hotel:reservation_paystack' reservation.id %}"
+                >
+                    💳 Pay ₦{{ reservation.accommodation_total|floatformat:2 }} Online
+                </a>
+
+            </div>
+        {% endif %}
+
+    </div>
+
+
+    {% if reservation.assigned_room %}
+    <div class="panel">
+
+        <h2>Transfer Room</h2>
+
+        <p class="muted">
+            Transfer this reservation to another available room.
+            The guest, reservation number, dates, rate, folio,
+            and payments will remain unchanged.
+        </p>
+
+        <form
+            method="post"
+            action="{% url 'hotel:reservation_transfer_room' reservation.id %}"
+        >
+
+            {% csrf_token %}
+
+            <div class="form-group">
+
+                <label for="{{ transfer_room_form.new_room.id_for_label }}">
+                    New Room
+                </label>
+
+                {{ transfer_room_form.new_room }}
+
+                {% if transfer_room_form.new_room.errors %}
+                    <div class="form-error">
+                        {{ transfer_room_form.new_room.errors }}
+                    </div>
+                {% endif %}
+
+            </div>
+
+            <button
+                type="submit"
+                class="btn primary"
+            >
+                Transfer Room
+            </button>
+
+        </form>
+
+    </div>
+    {% endif %}
+
+</div>
+
 {% endblock %}

@@ -1,337 +1,732 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends "layouts/base.html" %}
 
-    <title>Sonoga Group Management Dashboard</title>
+{% block title %}CEO Portal | Sonoga Group{% endblock %}
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+{% block content %}
 
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f4f6f8;
-            color: #2c3e50;
-        }
+<style>
+/* ============================================================
+   CEO DASHBOARD
+   ============================================================ */
 
-        .container {
-            max-width: 1400px;
-            margin: auto;
-            padding: 25px;
-        }
+.ceo-dashboard {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 10px 0 40px;
+}
 
-        /* HEADER */
+/* ============================================================
+   HEADER
+   ============================================================ */
 
-        .header {
-            background: #17202a;
-            color: white;
-            padding: 25px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-        }
+.ceo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
 
-        .header h1 {
-            margin: 0;
-            font-size: 28px;
-        }
+.ceo-header h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+}
 
-        .header p {
-            margin: 6px 0 0;
-            color: #bdc3c7;
-        }
+.ceo-header p {
+    margin: 7px 0 0;
+    color: #6b7280;
+    font-size: 14px;
+}
 
-        .user-nav {
-            font-size: 14px;
-        }
+.ceo-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
 
-        .user-nav a {
-            color: white;
-            text-decoration: none;
-            margin-left: 10px;
-        }
+/* ============================================================
+   BUTTONS
+   ============================================================ */
 
-        /* SECTION */
+.ceo-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 15px;
+    border-radius: 7px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    color: #1f2937;
+    cursor: pointer;
+}
 
-        .section-title {
-            margin-top: 30px;
-            margin-bottom: 12px;
-        }
+.ceo-btn:hover {
+    text-decoration: none;
+    background: #f9fafb;
+}
 
-        .section-title h2 {
-            margin: 0;
-            font-size: 21px;
-        }
+.ceo-btn-primary {
+    background: #17202a;
+    color: #ffffff;
+    border-color: #17202a;
+}
 
-        .section-title p {
-            color: #7f8c8d;
-            margin: 5px 0 0;
-        }
+.ceo-btn-primary:hover {
+    background: #273444;
+    color: #ffffff;
+}
 
-        /* BUSINESS UNITS */
+.ceo-btn-success {
+    background: #198754;
+    color: #ffffff;
+    border-color: #198754;
+}
 
-        .business-grid {
-            display: grid;
-            grid-template-columns:
-                repeat(auto-fit, minmax(250px, 1fr));
+.ceo-btn-success:hover {
+    background: #157347;
+    color: #ffffff;
+}
 
-            gap: 18px;
-            margin-top: 15px;
-        }
+/* ============================================================
+   FILTERS
+   ============================================================ */
 
-        .business-card {
-            background: white;
-            border-radius: 10px;
-            padding: 22px;
-            box-shadow: 0 3px 10px rgba(0,0,0,.06);
-            border-top: 5px solid #34495e;
-        }
+.filter-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 28px;
+}
 
-        .hotel {
-            border-top-color: #e67e22;
-        }
+.filter-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 14px;
+}
 
-        .water {
-            border-top-color: #3498db;
-        }
+.filter-form {
+    display: grid;
+    grid-template-columns: 180px 180px minmax(220px, 1fr) auto;
+    gap: 14px;
+    align-items: end;
+}
 
-        .bread {
-            border-top-color: #d35400;
-        }
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
 
-        .energy {
-            border-top-color: #f1c40f;
-        }
+.filter-group label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
 
-        .business-card h3 {
-            margin: 0 0 5px;
-            font-size: 19px;
-        }
+.filter-group input,
+.filter-group select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 11px;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #111827;
+    font-size: 13px;
+}
 
-        .business-card .type {
-            color: #7f8c8d;
-            font-size: 12px;
-            margin-bottom: 18px;
-        }
+/* ============================================================
+   SECTION HEADINGS
+   ============================================================ */
 
-        .business-card .amount {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
+.section-heading {
+    margin: 30px 0 14px;
+}
 
-        .business-card .label {
-            color: #7f8c8d;
-            font-size: 12px;
-        }
+.section-heading h2 {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 700;
+    color: #111827;
+}
 
-        /* QUICK ACCESS */
+.section-heading p {
+    margin: 5px 0 0;
+    color: #6b7280;
+    font-size: 13px;
+}
 
-        .modules-grid {
-            display: grid;
-            grid-template-columns:
-                repeat(auto-fit, minmax(220px, 1fr));
+/* ============================================================
+   KPI CARDS
+   ============================================================ */
 
-            gap: 15px;
-            margin-top: 15px;
-        }
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
 
-        .module-card {
-            background: white;
-            padding: 18px;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,.06);
-            text-decoration: none;
-            color: inherit;
-            transition: .2s;
-        }
+.summary-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 18px;
+    min-height: 105px;
+}
 
-        .module-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 14px rgba(0,0,0,.12);
-        }
+.summary-label {
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
 
-        .module-card h3 {
-            margin: 0 0 7px;
-            font-size: 16px;
-        }
+.summary-value {
+    margin-top: 9px;
+    font-size: 22px;
+    font-weight: 700;
+    color: #111827;
+}
 
-        .module-card p {
-            margin: 0;
-            color: #7f8c8d;
-            font-size: 12px;
-            line-height: 1.4;
-        }
+.summary-description {
+    margin-top: 5px;
+    color: #9ca3af;
+    font-size: 11px;
+}
 
-        /* FILTER */
+.summary-card.cash {
+    border-top: 3px solid #198754;
+}
 
-        .filter-section {
-            background: white;
-            padding: 18px;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
+.summary-card.receivable {
+    border-top: 3px solid #e67e22;
+}
 
-        .filter-section form {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+.summary-card.expense {
+    border-top: 3px solid #dc3545;
+}
 
-        .filter-section input,
-        .filter-section button {
-            padding: 8px 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
+.summary-card.result {
+    border-top: 3px solid #0d6efd;
+}
 
-        .filter-section button {
-            background: #2c3e50;
-            color: white;
-            cursor: pointer;
-            border: none;
-        }
+.summary-card.result .summary-value {
+    color: #198754;
+}
 
-        .export-btn {
-            display: inline-block;
-            background: #27ae60;
-            color: white;
-            padding: 9px 14px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 13px;
-        }
+/* ============================================================
+   BUSINESS UNIT PERFORMANCE
+   ============================================================ */
 
-        /* SUMMARY */
+.business-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 15px;
+}
 
-        .summary-grid {
-            display: grid;
-            grid-template-columns:
-                repeat(auto-fit, minmax(170px, 1fr));
+.business-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 18px;
+}
 
-            gap: 12px;
-            margin-top: 15px;
-        }
+.business-card h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #111827;
+}
 
-        .summary-card {
-            background: white;
-            padding: 18px;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 2px 6px rgba(0,0,0,.05);
-        }
+.business-type {
+    margin-top: 5px;
+    color: #9ca3af;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
 
-        .summary-card h4 {
-            margin: 0;
-            color: #7f8c8d;
-            font-size: 12px;
-        }
+.business-revenue {
+    margin-top: 20px;
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+}
 
-        .summary-card p {
-            margin: 8px 0 0;
-            font-size: 19px;
-            font-weight: bold;
-        }
+.business-label {
+    color: #6b7280;
+    font-size: 11px;
+}
 
-        /* TABLE */
+.business-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 17px;
+}
 
-        .table-container {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,.05);
-            overflow-x: auto;
-        }
+.mini-stat {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 11px;
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+.mini-stat strong {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 14px;
+    color: #111827;
+}
 
-        th,
-        td {
-            padding: 11px;
-            border-bottom: 1px solid #e5e7eb;
-            text-align: left;
-            font-size: 13px;
-        }
+/* ============================================================
+   CHARTS
+   ============================================================ */
 
-        th {
-            background: #2c3e50;
-            color: white;
-        }
+.charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
 
-        tr:nth-child(even) {
-            background: #f8fafc;
-        }
+.chart-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 18px;
+}
 
-        /* FOOTER */
+.chart-card h3 {
+    margin: 0;
+    font-size: 15px;
+    color: #111827;
+}
 
-        .footer {
-            text-align: center;
-            margin-top: 35px;
-            color: #95a5a6;
-            font-size: 12px;
-        }
+.chart-card p {
+    margin: 5px 0 15px;
+    color: #9ca3af;
+    font-size: 11px;
+}
 
-        /* MOBILE */
+.chart-wrap {
+    position: relative;
+    height: 300px;
+}
 
-        @media (max-width: 700px) {
+/* ============================================================
+   TABLE
+   ============================================================ */
 
-            .container {
-                padding: 12px;
-            }
+.table-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow-x: auto;
+}
 
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+.financial-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+}
 
-            .filter-section {
-                align-items: flex-start;
-            }
-        }
-    </style>
-</head>
+.financial-table th,
+.financial-table td {
+    padding: 13px 15px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+    font-size: 13px;
+}
 
-<body>
+.financial-table th {
+    background: #17202a;
+    color: #ffffff;
+    font-weight: 600;
+}
 
-<div class="container">
+.financial-table tbody tr:hover {
+    background: #f8fafc;
+}
 
-    <!-- HEADER -->
+.positive {
+    color: #198754;
+    font-weight: 700;
+}
 
-    <div class="header">
+.negative {
+    color: #dc3545;
+    font-weight: 700;
+}
+
+/* ============================================================
+   DECISION CENTER
+   ============================================================ */
+
+.decision-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.decision-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.decision-card.cash {
+    border-left: 4px solid #198754;
+}
+
+.decision-card.result {
+    border-left: 4px solid #0d6efd;
+}
+
+.decision-card.warning {
+    border-left: 4px solid #e67e22;
+}
+
+.decision-icon {
+    font-size: 23px;
+    margin-bottom: 10px;
+}
+
+.decision-label {
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+
+.decision-value {
+    margin-top: 8px;
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.decision-card p {
+    margin: 8px 0 0;
+    color: #6b7280;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* ============================================================
+   EXECUTIVE CONTROL
+   ============================================================ */
+
+.control-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 15px;
+}
+
+.control-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 18px;
+}
+
+.control-card.warning {
+    border-left: 4px solid #e67e22;
+}
+
+.control-card.success {
+    border-left: 4px solid #198754;
+}
+
+.control-card.info {
+    border-left: 4px solid #3498db;
+}
+
+.control-label {
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.control-value {
+    margin-top: 8px;
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.control-description {
+    margin-top: 6px;
+    color: #6b7280;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* ============================================================
+   CONTROL PANELS
+   ============================================================ */
+
+.control-panel {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 16px;
+}
+
+.control-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 18px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.control-panel-header h3 {
+    margin: 0;
+    font-size: 15px;
+    color: #111827;
+}
+
+.control-panel-header span {
+    color: #9ca3af;
+    font-size: 11px;
+}
+
+.approval-item,
+.activity-item {
+    padding: 14px 18px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.approval-item:last-child,
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.approval-main {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.approval-title,
+.activity-action {
+    font-weight: 700;
+    font-size: 13px;
+    color: #111827;
+}
+
+.approval-meta,
+.activity-meta {
+    margin-top: 5px;
+    color: #6b7280;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.approval-amount {
+    font-weight: 700;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.status-badge {
+    display: inline-block;
+    margin-top: 7px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: #fff3cd;
+    color: #856404;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.control-footer {
+    padding: 14px 18px;
+    background: #f8fafc;
+    border-top: 1px solid #e5e7eb;
+}
+
+.empty-state {
+    padding: 28px;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 1100px) {
+
+    .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .business-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .filter-form {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .filter-form .ceo-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 800px) {
+
+    .ceo-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .charts-grid,
+    .decision-grid,
+    .control-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .summary-grid,
+    .business-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-form {
+        grid-template-columns: 1fr;
+    }
+
+    .ceo-header h1 {
+        font-size: 23px;
+    }
+
+    .approval-main {
+        flex-direction: column;
+    }
+
+    .approval-amount {
+        white-space: normal;
+    }
+
+}
+
+/* ============================================================
+   MANAGEMENT MODULES
+   ============================================================ */
+
+.modules-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.module-card {
+    display: block;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    text-decoration: none;
+    color: #111827;
+    min-height: 145px;
+    box-sizing: border-box;
+    transition: transform .15s ease,
+                box-shadow .15s ease,
+                border-color .15s ease;
+}
+
+.module-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 22px rgba(0,0,0,.08);
+    border-color: #cbd5e1;
+}
+
+.module-card h3 {
+    margin: 0 0 10px;
+    font-size: 15px;
+    line-height: 1.4;
+    color: #17202a;
+}
+
+.module-card p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+@media (max-width: 1200px) {
+    .modules-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 800px) {
+    .modules-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 520px) {
+    .modules-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+
+<div class="ceo-dashboard">
+
+    <!-- ========================================================
+         HEADER
+         ======================================================== -->
+
+    <div class="ceo-header">
 
         <div>
-            <h1>Sonoga Group</h1>
+            <h1>CEO / Group Management</h1>
 
             <p>
-                Executive Management Dashboard
+                Executive overview of Sonoga Group performance,
+                cash position and business-unit results.
             </p>
         </div>
 
-        <div class="user-nav">
+        <div class="ceo-actions">
 
-            <strong>
-                {{ request.user.username }}
-            </strong>
+            <a href="/dashboard/" class="ceo-btn">
+                ? Group Dashboard
+            </a>
 
-            |
-
-            <a href="/accounts/logout/">
-                Sign out
+            <a
+                href="{% url 'reports:management_csv' %}?start={{ start_date|date:'Y-m-d' }}&end={{ end_date|date:'Y-m-d' }}"
+                class="ceo-btn ceo-btn-success"
+            >
+                Export Report
             </a>
 
         </div>
@@ -339,16 +734,240 @@
     </div>
 
 
-    <!-- BUSINESS UNITS -->
+    <!-- ========================================================
+         FILTERS
+         ======================================================== -->
 
-    <div class="section-title">
+    <div class="filter-card">
 
-        <h2>
-            Four Business Units
-        </h2>
+        <div class="filter-title">
+            Report Filters
+        </div>
+
+        <form method="get" class="filter-form">
+
+            <div class="filter-group">
+
+                <label for="start">
+                    Start Date
+                </label>
+
+                <input
+                    type="date"
+                    id="start"
+                    name="start"
+                    value="{{ start_date|date:'Y-m-d' }}"
+                >
+
+            </div>
+
+
+            <div class="filter-group">
+
+                <label for="end">
+                    End Date
+                </label>
+
+                <input
+                    type="date"
+                    id="end"
+                    name="end"
+                    value="{{ end_date|date:'Y-m-d' }}"
+                >
+
+            </div>
+
+
+            <div class="filter-group">
+
+                <label for="unit">
+                    Business Unit
+                </label>
+
+                <select id="unit" name="unit">
+
+                    <option value="">
+                        All Business Units
+                    </option>
+
+                    {% for unit in business_units %}
+
+                        <option
+                            value="{{ unit.code }}"
+                            {% if selected_unit == unit.code %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ unit.name }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="ceo-btn ceo-btn-primary"
+            >
+                Run Report
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- ========================================================
+         EXECUTIVE SUMMARY
+         ======================================================== -->
+
+    <div class="section-heading">
+
+        <h2>Executive Summary</h2>
 
         <p>
-            General Manager operational overview
+            Key financial indicators for the selected reporting period.
+        </p>
+
+    </div>
+
+
+    <div class="summary-grid">
+
+        <div class="summary-card">
+
+            <div class="summary-label">
+                Revenue
+            </div>
+
+            <div class="summary-value">
+                &#8358;{{ totals.revenue }}
+            </div>
+
+            <div class="summary-description">
+                Total income generated
+            </div>
+
+        </div>
+
+
+        <div class="summary-card cash">
+
+            <div class="summary-label">
+                Cash Received
+            </div>
+
+            <div class="summary-value">
+                &#8358;{{ totals.cash_received }}
+            </div>
+
+            <div class="summary-description">
+                Actual cash collected
+            </div>
+
+        </div>
+
+
+        <div class="summary-card receivable">
+
+            <div class="summary-label">
+                Receivables
+            </div>
+
+            <div class="summary-value">
+                &#8358;{{ totals.receivables }}
+            </div>
+
+            <div class="summary-description">
+                Outstanding customer balances
+            </div>
+
+        </div>
+
+
+        <div class="summary-card expense">
+
+            <div class="summary-label">
+                Expenses
+            </div>
+
+            <div class="summary-value">
+                &#8358;{{ totals.expenses }}
+            </div>
+
+            <div class="summary-description">
+                Operating expenses
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-label">
+                Payroll
+            </div>
+
+            <div class="summary-value">
+                &#8358;{{ totals.payroll }}
+            </div>
+
+            <div class="summary-description">
+                Employee payroll costs
+            </div>
+
+        </div>
+
+
+        <div class="summary-card cash">
+
+            <div class="summary-label">
+                Net Cash Movement
+            </div>
+
+            <div class="summary-value">
+                &#8358;{{ ceo_insights.net_cash_movement }}
+            </div>
+
+            <div class="summary-description">
+                Cash inflow less cash outflow
+            </div>
+
+        </div>
+
+
+        <div class="summary-card result">
+
+            <div class="summary-label">
+                Operating Result
+            </div>
+
+            <div class="summary-value">
+                &#8358;{{ totals.operating_result }}
+            </div>
+
+            <div class="summary-description">
+                Revenue less operating costs
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         BUSINESS UNIT PERFORMANCE
+         ======================================================== -->
+
+    <div class="section-heading">
+
+        <h2>Management Analytics</h2>
+
+        <p>
+            Financial contribution of each Sonoga Group business unit.
         </p>
 
     </div>
@@ -361,55 +980,50 @@
             <div class="business-card">
 
                 <h3>
-                    {{ row.business_unit.name }}
+                    {{ row.business_unit.name|default:"Business Unit" }}
                 </h3>
 
-                <div class="type">
-                    {{ row.business_unit.unit_type }}
+                <div class="business-type">
+                    {{ row.business_unit.code|default:"N/A" }}
                 </div>
 
-                <div class="amount">
-                    ₦{{ row.revenue }}
+
+                <div class="business-revenue">
+                    &#8358;{{ row.revenue|default:"0.00" }}
                 </div>
 
-                <div class="label">
+                <div class="business-label">
                     Revenue
                 </div>
 
-                <hr>
 
-                <div>
-                    <strong>
-                        ₦{{ row.cash_received }}
-                    </strong>
+                <div class="business-stats">
 
-                    <div class="label">
-                        Cash Received
+                    <div class="mini-stat">
+
+                        <strong>
+                            &#8358;{{ row.expenses|default:"0.00" }}
+                        </strong>
+
+                        <span class="business-label">
+                            Expenses
+                        </span>
+
                     </div>
-                </div>
 
-                <br>
 
-                <div>
-                    <strong>
-                        ₦{{ row.expenses }}
-                    </strong>
+                    <div class="mini-stat">
 
-                    <div class="label">
-                        Expenses
+                        <strong>
+                            &#8358;{{ row.operating_result|default:"0.00" }}
+                        </strong>
+
+                        <span class="business-label">
+                            Operating Result
+                        </span>
+
                     </div>
-                </div>
 
-                <br>
-
-                <div>
-                    <strong>
-                        ₦{{ row.operating_result }}
-                    </strong>
-
-                    <div class="label">
-                        Operating Result
-                    </div>
                 </div>
 
             </div>
@@ -418,13 +1032,9 @@
 
             <div class="business-card">
 
-                <h3>
-                    No Business Units
-                </h3>
-
-                <p>
-                    No active business units were found.
-                </p>
+                <div class="empty-state">
+                    No business-unit performance data available.
+                </div>
 
             </div>
 
@@ -433,200 +1043,131 @@
     </div>
 
 
-    <!-- FILTER -->
+    <!-- ========================================================
+         PERFORMANCE CHARTS
+         ======================================================== -->
 
-    <div class="section-title">
+    <div class="section-heading">
 
-        <h2>
-            Group Financial Overview
-        </h2>
+        <h2>Performance Trends</h2>
 
-    </div>
-
-
-    <div class="filter-section">
-
-        <form method="get">
-
-            <label for="start">
-                Start:
-            </label>
-
-            <input
-                type="date"
-                id="start"
-                name="start"
-                value="{{ start_date|date:'Y-m-d' }}"
-            >
-
-            <label for="end">
-                End:
-            </label>
-
-            <input
-                type="date"
-                id="end"
-                name="end"
-                value="{{ end_date|date:'Y-m-d' }}"
-            >
-
-            <button type="submit">
-                Run Report
-            </button>
-
-        </form>
-
-
-        <a
-            href="{% url 'reports:management_csv' %}?start={{ start_date|date:'Y-m-d' }}&end={{ end_date|date:'Y-m-d' }}"
-            class="export-btn"
-        >
-            Export CSV
-        </a>
+        <p>
+            Visual comparison of revenue, expenses and operating results.
+        </p>
 
     </div>
 
 
-    <!-- GROUP TOTALS -->
+    <div class="charts-grid">
 
-    <div class="summary-grid">
+        <div class="chart-card">
 
-        <div class="summary-card">
-            <h4>Revenue</h4>
-            <p>₦{{ totals.revenue }}</p>
+            <h3>
+                Revenue vs Expenses
+            </h3>
+
+            <p>
+                Financial activity across the selected period.
+            </p>
+
+            <div class="chart-wrap">
+
+                <canvas id="revenueExpenseChart"></canvas>
+
+            </div>
+
         </div>
 
-        <div class="summary-card">
-            <h4>Cash Received</h4>
-            <p>₦{{ totals.cash_received }}</p>
-        </div>
 
-        <div class="summary-card">
-            <h4>Receivables</h4>
-            <p>₦{{ totals.receivables }}</p>
-        </div>
+        <div class="chart-card">
 
-        <div class="summary-card">
-            <h4>Expenses</h4>
-            <p>₦{{ totals.expenses }}</p>
-        </div>
+            <h3>
+                Operating Result
+            </h3>
 
-        <div class="summary-card">
-            <h4>Payroll</h4>
-            <p>₦{{ totals.payroll }}</p>
-        </div>
+            <p>
+                Operating performance across the selected period.
+            </p>
 
-        <div class="summary-card">
-            <h4>Operating Result</h4>
-            <p>₦{{ totals.operating_result }}</p>
+            <div class="chart-wrap">
+
+                <canvas id="profitChart"></canvas>
+
+            </div>
+
         </div>
 
     </div>
 
 
-    <!-- PERFORMANCE TABLE -->
+    <!-- ========================================================
+         FINANCIAL SUMMARY
+         ======================================================== -->
 
-    <div class="section-title">
+    <div class="section-heading">
 
-        <h2>
-            Business Unit Performance
-        </h2>
+        <h2>Business Unit Financial Summary</h2>
+
+        <p>
+            Detailed comparison of Group business-unit performance.
+        </p>
 
     </div>
 
 
-    <div class="table-container">
+    <div class="table-card">
 
-        <table>
+        <table class="financial-table">
 
             <thead>
 
                 <tr>
 
-                    <th>
-                        Business Unit
-                    </th>
-
-                    <th>
-                        Revenue
-                    </th>
-
-                    <th>
-                        Cash
-                    </th>
-
-                    <th>
-                        Receivables
-                    </th>
-
-                    <th>
-                        Expenses
-                    </th>
-
-                    <th>
-                        Payroll
-                    </th>
-
-                    <th>
-                        Operating Result
-                    </th>
+                    <th>Business Unit</th>
+                    <th>Revenue</th>
+                    <th>Expenses</th>
+                    <th>Operating Result</th>
 
                 </tr>
 
             </thead>
 
+
             <tbody>
 
                 {% for row in rows %}
 
-                <tr>
+                    <tr>
 
-                    <td>
-                        <strong>
-                            {{ row.business_unit.name }}
-                        </strong>
-                    </td>
+                        <td>
+                            {{ row.business_unit.name|default:"Business Unit" }}
+                        </td>
 
-                    <td>
-                        ₦{{ row.revenue }}
-                    </td>
+                        <td>
+                            &#8358;{{ row.revenue|default:"0.00" }}
+                        </td>
 
-                    <td>
-                        ₦{{ row.cash_received }}
-                    </td>
+                        <td>
+                            &#8358;{{ row.expenses|default:"0.00" }}
+                        </td>
 
-                    <td>
-                        ₦{{ row.receivables }}
-                    </td>
+                        <td
+                            class="{% if row.operating_result >= 0 %}positive{% else %}negative{% endif %}"
+                        >
+                            &#8358;{{ row.operating_result|default:"0.00" }}
+                        </td>
 
-                    <td>
-                        ₦{{ row.expenses }}
-                    </td>
-
-                    <td>
-                        ₦{{ row.payroll }}
-                    </td>
-
-                    <td>
-                        <strong>
-                            ₦{{ row.operating_result }}
-                        </strong>
-                    </td>
-
-                </tr>
+                    </tr>
 
                 {% empty %}
 
-                <tr>
+                    <tr>
 
-                    <td
-                        colspan="7"
-                        style="text-align:center;"
-                    >
-                        No active business units found.
-                    </td>
+                        <td colspan="4" class="empty-state">
+                            No financial data available.
+                        </td>
 
-                </tr>
+                    </tr>
 
                 {% endfor %}
 
@@ -637,148 +1178,604 @@
     </div>
 
 
-    <!-- QUICK ACCESS -->
+    <!-- ========================================================
+         CEO DECISION CENTER
+         ======================================================== -->
 
-    <div class="section-title">
+    <div class="section-heading">
 
-        <h2>
-            Management Modules
-        </h2>
+        <!-- ========================================================
+     MANAGEMENT MODULES
+     ======================================================== -->
+
+<div class="section-heading">
+
+    <h2>Management Modules</h2>
+
+    <p>
+        Quick access to the major operational areas of Sonoga Group.
+    </p>
+
+</div>
+
+
+<div class="modules-grid">
+
+    <!-- SONOGA HOTELS -->
+
+    <a href="/hotel/" class="module-card">
+
+        <h3>&#127968; Sonoga Hotels &amp; Suites</h3>
 
         <p>
-            Access operational areas of Sonoga Group.
+            Reservations, reception, rooms, guests, folios and housekeeping.
+        </p>
+
+    </a>
+
+
+    <!-- MABINAS BREAD -->
+
+    <a href="/factory/MB001/" class="module-card">
+
+        <h3>&#127838; Mabinas Bread</h3>
+
+        <p>
+            Bread production, sales, inventory and factory operations.
+        </p>
+
+    </a>
+
+
+    <!-- MABINAS WATER -->
+
+    <a href="/factory/MW001/" class="module-card">
+
+        <h3>&#128167; Mabinas Water</h3>
+
+        <p>
+            Pure water production, sales, inventory and factory operations.
+        </p>
+
+    </a>
+
+
+    <!-- CROWN FIELD -->
+
+    <div class="module-card">
+
+        <h3>&#9889; Crown Field</h3>
+
+        <p>
+            Crown Field operations, performance and business activities.
         </p>
 
     </div>
 
 
-    <div class="modules-grid">
+    <!-- FINANCE -->
 
-        <a href="/hotel/" class="module-card">
+    <a href="/finance/" class="module-card">
 
-            <h3>
-                🏨 Sonoga Hotels
-            </h3>
+        <h3>&#128176; Finance</h3>
 
-            <p>
-                Reservations, reception, rooms,
-                guests, folios and housekeeping.
-            </p>
+        <p>
+            Financial transactions, expenses and business performance.
+        </p>
 
-        </a>
+    </a>
 
 
-        <a href="/factory/" class="module-card">
+    <!-- HUMAN RESOURCES -->
 
-            <h3>
-                🏭 Mabinas Production
-            </h3>
+    <a href="/hr/" class="module-card">
 
-            <p>
-                Production operations for
-                Mabinas Water and Mabinas Bread.
-            </p>
+        <h3>&#128101; Human Resources</h3>
 
-        </a>
+        <p>
+            Employees, departments and personnel management.
+        </p>
 
-
-        <a href="/finance/" class="module-card">
-
-            <h3>
-                💰 Finance
-            </h3>
-
-            <p>
-                Financial transactions,
-                accounts and business performance.
-            </p>
-
-        </a>
+    </a>
 
 
-        <a href="/hr/" class="module-card">
+    <!-- INVENTORY -->
 
-            <h3>
-                👥 Human Resources
-            </h3>
+    <a href="/inventory/" class="module-card">
 
-            <p>
-                Employees, departments,
-                personnel and HR operations.
-            </p>
+        <h3>&#128230; Inventory</h3>
 
-        </a>
+        <p>
+            Stock, warehouse items, supplies and assets.
+        </p>
 
-
-        <a href="/inventory/" class="module-card">
-
-            <h3>
-                📦 Inventory
-            </h3>
-
-            <p>
-                Stock, warehouse items,
-                supplies and assets.
-            </p>
-
-        </a>
+    </a>
 
 
-        <a href="/procurement/" class="module-card">
+    <!-- PROCUREMENT -->
 
-            <h3>
-                🛒 Procurement
-            </h3>
+    <a href="/procurement/" class="module-card">
 
-            <p>
-                Vendors, purchasing,
-                purchase orders and supplies.
-            </p>
+        <h3>&#128722; Procurement</h3>
 
-        </a>
+        <p>
+            Vendors, purchasing, purchase orders and supplies.
+        </p>
 
-
-        <a href="/payroll/" class="module-card">
-
-            <h3>
-                💵 Payroll
-            </h3>
-
-            <p>
-                Salaries, allowances,
-                deductions and payroll runs.
-            </p>
-
-        </a>
+    </a>
 
 
-        <a href="/control/" class="module-card">
+    <!-- PAYROLL -->
 
-            <h3>
-                🔐 System Control
-            </h3>
+    <a href="/payroll/" class="module-card">
 
-            <p>
-                Approvals, audit logs,
-                notifications and controls.
-            </p>
+        <h3>&#128181; Payroll</h3>
 
-        </a>
+        <p>
+            Salaries, allowances, deductions and payroll runs.
+        </p>
+
+    </a>
+
+
+    <!-- SYSTEM CONTROL -->
+
+    <a href="/control/" class="module-card">
+
+        <h3>&#128274; System Control</h3>
+
+        <p>
+            Approvals, audit logs, notifications and controls.
+        </p>
+
+    </a>
+
+</div>
+
+
+<!-- ========================================================
+     CEO DECISION CENTER
+     ======================================================== -->
+<h2>CEO Decision Center</h2>
+
+        <p>
+            The indicators most relevant to executive decision-making.
+        </p>
 
     </div>
 
 
-    <div class="footer">
+    <div class="decision-grid">
 
-        Sonoga Management System
+        <div class="decision-card cash">
 
-        |
+            <div class="decision-icon">
+                ??
+            </div>
 
-        Sonoga Group
+            <div class="decision-label">
+                Net Cash Movement
+            </div>
+
+            <div class="decision-value">
+                &#8358;{{ ceo_insights.net_cash_movement }}
+            </div>
+
+            <p>
+                Net movement in cash during the selected reporting period.
+            </p>
+
+        </div>
+
+
+        <div class="decision-card result">
+
+            <div class="decision-icon">
+                ??
+            </div>
+
+            <div class="decision-label">
+                Operating Result
+            </div>
+
+            <div class="decision-value">
+                &#8358;{{ totals.operating_result }}
+            </div>
+
+            <p>
+                Overall operating result across the selected business units.
+            </p>
+
+        </div>
+
+
+        <div class="decision-card warning">
+
+            <div class="decision-icon">
+                ??
+            </div>
+
+            <div class="decision-label">
+                Receivables
+            </div>
+
+            <div class="decision-value">
+                &#8358;{{ totals.receivables }}
+            </div>
+
+            <p>
+                Outstanding receivables requiring monitoring and collection.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         EXECUTIVE CONTROL CENTER
+         ======================================================== -->
+
+    <div class="section-heading">
+
+        <h2>Executive Control Center</h2>
+
+        <p>
+            Approvals, system status and audit visibility.
+        </p>
+
+    </div>
+
+
+    <div class="control-grid">
+
+        <div class="control-card warning">
+
+            <div class="control-label">
+                Pending Approvals
+            </div>
+
+            <div class="control-value">
+                {{ pending_approvals|default:"0" }}
+            </div>
+
+            <div class="control-description">
+                Transactions and operational actions awaiting executive review.
+            </div>
+
+        </div>
+
+
+        <div class="control-card success">
+
+            <div class="control-label">
+                System Status
+            </div>
+
+            <div class="control-value">
+                Operational
+            </div>
+
+            <div class="control-description">
+                Core management systems are available for normal operations.
+            </div>
+
+        </div>
+
+
+        <div class="control-card info">
+
+            <div class="control-label">
+                Audit Visibility
+            </div>
+
+            <div class="control-value">
+                Active
+            </div>
+
+            <div class="control-description">
+                Executive users can monitor operational activity and audit information.
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         PENDING APPROVALS
+         ======================================================== -->
+
+    <div class="control-panel">
+
+        <div class="control-panel-header">
+
+            <h3>
+                Pending Executive Approvals
+            </h3>
+
+            <span>
+                Requires management attention
+            </span>
+
+        </div>
+
+
+        {% for approval in approvals %}
+
+            <div class="approval-item">
+
+                <div class="approval-main">
+
+                    <div>
+
+                        <div class="approval-title">
+                            {{ approval.title|default:"Pending approval" }}
+                        </div>
+
+                        <div class="approval-meta">
+                            {{ approval.description|default:"Management approval required." }}
+                        </div>
+
+                        <span class="status-badge">
+                            Pending
+                        </span>
+
+                    </div>
+
+
+                    {% if approval.amount %}
+
+                        <div class="approval-amount">
+                            &#8358;{{ approval.amount }}
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        {% empty %}
+
+            <div class="empty-state">
+                No pending executive approvals.
+            </div>
+
+        {% endfor %}
+
+
+        <div class="control-footer">
+
+            <a href="/dashboard/" class="ceo-btn">
+                Open System Control
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================================
+         RECENT ACTIVITY
+         ======================================================== -->
+
+    <div class="control-panel">
+
+        <div class="control-panel-header">
+
+            <h3>
+                Recent Management Activity
+            </h3>
+
+            <span>
+                Audit and operational visibility
+            </span>
+
+        </div>
+
+
+        {% for activity in recent_activity %}
+
+            <div class="activity-item">
+
+                <div class="activity-action">
+                    {{ activity.action|default:"Management activity" }}
+                </div>
+
+                <div class="activity-meta">
+
+                    {% if activity.user %}
+                        By {{ activity.user }}
+                    {% endif %}
+
+                    {% if activity.timestamp %}
+                        ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· {{ activity.timestamp }}
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        {% empty %}
+
+            <div class="empty-state">
+                No recent management activity available.
+            </div>
+
+        {% endfor %}
+
+
+        <div class="control-footer">
+
+            <a href="/dashboard/" class="ceo-btn">
+                View Audit &amp; Controls
+            </a>
+
+        </div>
 
     </div>
 
 </div>
 
-</body>
-</html>
+
+<!-- ============================================================
+     CHART.JS
+     ============================================================ -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const labels = {{ chart_labels|safe }};
+    const revenue = {{ chart_revenue|safe }};
+    const expenses = {{ chart_expenses|safe }};
+    const profit = {{ chart_profit|safe }};
+
+
+    /* ========================================================
+       REVENUE VS EXPENSES
+       ======================================================== */
+
+    const revenueExpenseCanvas =
+        document.getElementById("revenueExpenseChart");
+
+    if (revenueExpenseCanvas) {
+
+        new Chart(revenueExpenseCanvas, {
+
+            type: "bar",
+
+            data: {
+
+                labels: labels,
+
+                datasets: [
+
+                    {
+                        label: "Revenue",
+                        data: revenue
+                    },
+
+                    {
+                        label: "Expenses",
+                        data: expenses
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                interaction: {
+                    mode: "index",
+                    intersect: false
+                },
+
+                plugins: {
+
+                    legend: {
+                        position: "bottom"
+                    }
+
+                },
+
+                scales: {
+
+                    y: {
+                        beginAtZero: true,
+
+                        ticks: {
+
+                            callback: function(value) {
+                                return "?" + Number(value).toLocaleString();
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    /* ========================================================
+       OPERATING RESULT
+       ======================================================== */
+
+    const profitCanvas =
+        document.getElementById("profitChart");
+
+    if (profitCanvas) {
+
+        new Chart(profitCanvas, {
+
+            type: "bar",
+
+            data: {
+
+                labels: labels,
+
+                datasets: [
+
+                    {
+                        label: "Operating Result",
+                        data: profit
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                    legend: {
+                        display: false
+                    }
+
+                },
+
+                scales: {
+
+                    y: {
+                        beginAtZero: true,
+
+                        ticks: {
+
+                            callback: function(value) {
+                                return "?" + Number(value).toLocaleString();
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+});
+</script>
+
+{% endblock %}

@@ -1,4 +1,4 @@
-from django.urls import path
+﻿from django.urls import path
 from . import views
 
 app_name = "hotel"
@@ -37,9 +37,22 @@ urlpatterns = [
     ),
 
     path(
-        "reservations/<int:pk>/swap-guest/",
-        views.reservation_swap_guest,
-        name="reservation_swap_guest",
+        "reservations/<int:pk>/transfer-room/",
+        views.reservation_transfer_room,
+        name="reservation_transfer_room",
+    ),
+
+    # Paystack
+    path(
+        "reservations/<int:pk>/pay/",
+        views.reservation_paystack,
+        name="reservation_paystack",
+    ),
+
+    path(
+        "payments/paystack/callback/",
+        views.paystack_callback,
+        name="paystack_callback",
     ),
 
     # Guests

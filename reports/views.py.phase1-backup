@@ -1,9 +1,8 @@
-import csv
+﻿import csv
 import json
 from datetime import date
 
 from django.http import HttpResponse
-from django.db.models import Sum
 from django.shortcuts import render
 from django.utils import timezone
 
@@ -16,7 +15,6 @@ from accounts.access import (
 )
 
 from organization.models import BusinessUnit
-from control.models import ApprovalRequest, AuditLog
 
 from .services import group_summary
 
@@ -182,41 +180,6 @@ def _dashboard_context(request):
 
     today = timezone.localdate()
 
-    # ============================================================
-    # CEO EXECUTIVE CONTROL CENTER
-    # ============================================================
-
-    pending_approvals = ApprovalRequest.objects.filter(
-        status=ApprovalRequest.Status.PENDING,
-    ).select_related(
-        "business_unit",
-        "requested_by",
-        "assigned_to",
-    )[:10]
-
-    pending_approval_count = ApprovalRequest.objects.filter(
-        status=ApprovalRequest.Status.PENDING,
-    ).count()
-
-    approval_amount = (
-        ApprovalRequest.objects.filter(
-            status=ApprovalRequest.Status.PENDING,
-            amount__isnull=False,
-        ).aggregate(total=Sum("amount"))["total"]
-        or 0
-    )
-
-    recent_activity = AuditLog.objects.select_related(
-        "actor",
-        "business_unit",
-    ).order_by("-created_at")[:10]
-
-    context["executive_control"] = {
-        "pending_approvals": pending_approvals,
-        "pending_approval_count": pending_approval_count,
-        "approval_amount": approval_amount,
-        "recent_activity": recent_activity,
-    }
     context["periods"] = {
         "today": today,
         "month_start": today.replace(day=1),
@@ -340,3 +303,4 @@ def management_csv(request):
     ])
 
     return response
+

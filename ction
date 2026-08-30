@@ -1,0 +1,138 @@
+warning: in the working copy of 'finance/services.py', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/finance/services.py b/finance/services.py[m
+[1mindex b44bfed..9f8fad7 100644[m
+[1m--- a/finance/services.py[m
+[1m+++ b/finance/services.py[m
+[36m@@ -1,7 +1,9 @@[m
+[31m-from decimal import Decimal[m
+[32m+[m[32m﻿from decimal import Decimal[m
+[32m+[m
+ from django.core.exceptions import ValidationError[m
+ from django.db import transaction[m
+ from django.utils import timezone[m
+[32m+[m
+ from control.services import log_event[m
+ from .models import Expense, ExpensePayment[m
+ [m
+[36m@@ -9,28 +11,72 @@[m [mfrom .models import Expense, ExpensePayment[m
+ @transaction.atomic[m
+ def approve_expense(*, expense_id: int, approved_by) -> Expense:[m
+     expense = Expense.objects.select_for_update().get(pk=expense_id)[m
+[32m+[m
+     if expense.status == Expense.Status.APPROVED:[m
+         return expense[m
+[32m+[m
+     if expense.status != Expense.Status.SUBMITTED:[m
+         raise ValidationError("Only submitted expenses can be approved.")[m
+[32m+[m
+     expense.status = Expense.Status.APPROVED[m
+     expense.approved_by = approved_by[m
+     expense.approved_at = timezone.now()[m
+[31m-    expense.save(update_fields=["status", "approved_by", "approved_at", "updated_at"])[m
+[31m-    log_event(actor=approved_by, business_unit=expense.business_unit, module="finance", action="expense_approve", description=f"Approved expense {expense.expense_number}.", reference_type="Expense", reference_id=expense.pk, reference_number=expense.expense_number, new_values={"amount": str(expense.amount)})[m
+[32m+[m
+[32m+[m[32m    expense.save([m
+[32m+[m[32m        update_fields=[[m
+[32m+[m[32m            "status",[m
+[32m+[m[32m            "approved_by",[m
+[32m+[m[32m            "approved_at",[m
+[32m+[m[32m            "updated_at",[m
+[32m+[m[32m        ][m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m[32m    log_event([m
+[32m+[m[32m        actor=approved_by,[m
+[32m+[m[32m        business_unit=expense.business_unit,[m
+[32m+[m[32m        module="finance",[m
+[32m+[m[32m        action="expense_approve",[m
+[32m+[m[32m        description=f"Approved expense {expense.expense_number}.",[m
+[32m+[m[32m        reference_type="Expense",[m
+[32m+[m[32m        reference_id=expense.pk,[m
+[32m+[m[32m        reference_number=expense.expense_number,[m
+[32m+[m[32m        new_values={[m
+[32m+[m[32m            "amount": str(expense.amount),[m
+[32m+[m[32m        },[m
+[32m+[m[32m    )[m
+[32m+[m
+     return expense[m
+ [m
+ [m
+ @transaction.atomic[m
+[31m-def record_expense_payment(*, expense_id: int, reference: str, payment_date, amount, method: str, paid_by, external_reference="", notes="") -> ExpensePayment:[m
+[32m+[m[32mdef record_expense_payment([m
+[32m+[m[32m    *,[m
+[32m+[m[32m    expense_id: int,[m
+[32m+[m[32m    reference: str,[m
+[32m+[m[32m    payment_date,[m
+[32m+[m[32m    amount,[m
+[32m+[m[32m    method: str,[m
+[32m+[m[32m    paid_by,[m
+[32m+[m[32m    external_reference="",[m
+[32m+[m[32m    notes="",[m
+[32m+[m[32m) -> ExpensePayment:[m
+     expense = Expense.objects.select_for_update().get(pk=expense_id)[m
+[31m-    if expense.status not in {Expense.Status.APPROVED, Expense.Status.PARTIALLY_PAID}:[m
+[32m+[m
+[32m+[m[32m    if expense.status not in {[m
+[32m+[m[32m        Expense.Status.APPROVED,[m
+[32m+[m[32m        Expense.Status.PARTIALLY_PAID,[m
+[32m+[m[32m    }:[m
+         raise ValidationError("Only approved expenses can be paid.")[m
+[32m+[m
+     amount = Decimal(str(amount))[m
+[32m+[m
+     if amount <= 0:[m
+         raise ValidationError("Payment amount must be greater than zero.")[m
+[32m+[m
+     if amount > expense.balance:[m
+[31m-        raise ValidationError(f"Payment exceeds expense balance of {expense.balance}.")[m
+[32m+[m[32m        raise ValidationError([m
+[32m+[m[32m            f"Payment exceeds expense balance of {expense.balance}."[m
+[32m+[m[32m        )[m
+ [m
+     payment = ExpensePayment([m
+         expense=expense,[m
+[36m@@ -42,11 +88,40 @@[m [mdef record_expense_payment(*, expense_id: int, reference: str, payment_date, amo[m
+         external_reference=external_reference,[m
+         notes=notes,[m
+     )[m
+[32m+[m
+     payment.full_clean()[m
+     payment.save()[m
+ [m
+     expense.refresh_from_db()[m
+[31m-    expense.status = Expense.Status.PAID if expense.balance == 0 else Expense.Status.PARTIALLY_PAID[m
+[31m-    expense.save(update_fields=["status", "updated_at"])[m
+[31m-    log_event(actor=paid_by, business_unit=expense.business_unit, module="finance", action="expense_payment", description=f"Recorded payment {payment.reference} for expense {expense.expense_number}.", reference_type="ExpensePayment", reference_id=payment.pk, reference_number=payment.reference, new_values={"amount": str(payment.amount)})[m
+[32m+[m
+[32m+[m[32m    expense.status = ([m
+[32m+[m[32m        Expense.Status.PAID[m
+[32m+[m[32m        if expense.balance == 0[m
+[32m+[m[32m        else Expense.Status.PARTIALLY_PAID[m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m[32m    expense.save([m
+[32m+[m[32m        update_fields=[[m
+[32m+[m[32m            "status",[m
+[32m+[m[32m            "updated_at",[m
+[32m+[m[32m        ][m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m[32m    log_event([m
+[32m+[m[32m        actor=paid_by,[m
+[32m+[m[32m        business_unit=expense.business_unit,[m
+[32m+[m[32m        module="finance",[m
+[32m+[m[32m        action="expense_payment",[m
+[32m+[m[32m        description=([m
+[32m+[m[32m            f"Recorded payment {payment.reference} "[m
+[32m+[m[32m            f"for expense {expense.expense_number}."[m
+[32m+[m[32m        ),[m
+[32m+[m[32m        reference_type="ExpensePayment",[m
+[32m+[m[32m        reference_id=payment.pk,[m
+[32m+[m[32m        reference_number=payment.reference,[m
+[32m+[m[32m        new_values={[m
+[32m+[m[32m            "amount": str(payment.amount),[m
+[32m+[m[32m        },[m
+[32m+[m[32m    )[m
+[32m+[m
+     return payment[m

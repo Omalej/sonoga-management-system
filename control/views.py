@@ -13,6 +13,15 @@ from hotel.models import HousekeepingTask, MaintenanceTicket
 from .models import ApprovalRequest, AuditLog
 
 
+
+@role_required(GROUP_MANAGEMENT, ACCOUNTANT, HR_MANAGER, HOTEL_MANAGER, WATER_MANAGER, BREAD_MANAGER, STOREKEEPER)
+def control_dashboard(request):
+    return render(request, "control/dashboard.html", {
+        "pending_approvals": ApprovalRequest.objects.filter(
+            status=ApprovalRequest.Status.PENDING
+        ).count(),
+        "audit_events": AuditLog.objects.count(),
+    })
 @role_required(GROUP_MANAGEMENT, ACCOUNTANT, HR_MANAGER, HOTEL_MANAGER, WATER_MANAGER, BREAD_MANAGER)
 def approval_center(request):
     unit = business_unit_for(request.user)

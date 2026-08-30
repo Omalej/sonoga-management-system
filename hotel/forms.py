@@ -201,3 +201,35 @@ class SwapGuestForm(forms.Form):
                     "first_name",
                 )
             )
+class TransferRoomForm(forms.Form):
+    new_room = forms.ModelChoiceField(
+        queryset=Room.objects.none(),
+        label="New Room",
+        empty_label="Select a room",
+    )
+
+    def __init__(
+        self,
+        *args,
+        reservation=None,
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+
+        self.reservation = reservation
+
+        if reservation:
+            self.fields["new_room"].queryset = (
+                Room.objects.filter(
+                    business_unit=reservation.business_unit,
+                    room_type=reservation.room_type,
+                    occupancy_status=Room.Occupancy.VACANT,
+                    housekeeping_status=Room.Housekeeping.CLEAN,
+                    maintenance_status=Room.Maintenance.CLEAR,
+                    is_blocked=False,
+                )
+                .exclude(
+                    pk=reservation.assigned_room_id
+                )
+                .order_by("number")
+            )

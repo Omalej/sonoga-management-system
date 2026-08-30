@@ -1,4 +1,4 @@
-from django.conf import settings
+﻿from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 from django.core.management.base import BaseCommand
@@ -317,12 +317,12 @@ class Command(BaseCommand):
             ),
             (
                 "WATER",
-                "Sonoga Pure Water Factory",
+                "Mabinas Water",
                 BusinessUnit.UnitType.WATER,
             ),
             (
                 "BREAD",
-                "Sonoga Bread Factory",
+                "Mabinas Bread",
                 BusinessUnit.UnitType.BREAD,
             ),
         ]

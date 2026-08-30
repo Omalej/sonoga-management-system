@@ -1,0 +1,473 @@
+﻿{% extends "layouts/base.html" %}
+
+{% block title %}CEO Portal | Sonoga Group{% endblock %}
+
+{% block content %}
+
+<style>
+.ceo-header{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:24px;flex-wrap:wrap}
+.ceo-header h1{margin:0;font-size:28px}
+.ceo-header p{margin:6px 0 0;color:#6b7280}
+.ceo-actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-block;padding:10px 15px;border-radius:7px;text-decoration:none;font-size:13px;font-weight:600;border:1px solid #d1d5db;background:white;color:#1f2937}
+.btn-primary{background:#17202a;color:white;border-color:#17202a}
+.btn-success{background:#198754;color:white;border-color:#198754}
+
+.filter-card{background:white;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:22px}
+.filter-form{display:flex;align-items:end;gap:12px;flex-wrap:wrap}
+.filter-group{display:flex;flex-direction:column;gap:5px}
+.filter-group label{font-size:12px;font-weight:600;color:#6b7280}
+.filter-group input,.filter-group select{padding:9px 10px;border:1px solid #d1d5db;border-radius:6px;background:white}
+
+.section-heading{margin:28px 0 12px}
+.section-heading h2{margin:0;font-size:19px}
+.section-heading p{margin:5px 0 0;color:#6b7280;font-size:13px}
+
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
+.summary-card{background:white;border:1px solid #e5e7eb;border-radius:10px;padding:18px}
+.summary-label{color:#6b7280;font-size:12px;font-weight:600;text-transform:uppercase}
+.summary-value{margin-top:8px;font-size:22px;font-weight:700;color:#17202a}
+.summary-card.result .summary-value{color:#198754}
+
+.business-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:15px}
+.business-card{background:white;border:1px solid #e5e7eb;border-radius:10px;padding:18px}
+.business-card h3{margin:0;font-size:17px}
+.business-type{color:#6b7280;font-size:11px;margin-top:4px;text-transform:uppercase}
+.business-revenue{margin-top:18px;font-size:23px;font-weight:700}
+.business-label{color:#6b7280;font-size:11px}
+.business-stats{margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mini-stat{background:#f8fafc;border-radius:7px;padding:10px}
+.mini-stat strong{display:block;font-size:14px;margin-bottom:3px}
+
+.charts-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.chart-card{background:white;border:1px solid #e5e7eb;border-radius:10px;padding:18px}
+.chart-card h3{margin:0 0 14px;font-size:15px}
+.chart-wrap{position:relative;height:300px}
+
+.table-card{background:white;border:1px solid #e5e7eb;border-radius:10px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:800px}
+th,td{padding:12px 14px;border-bottom:1px solid #e5e7eb;text-align:left;font-size:13px}
+th{background:#17202a;color:white;font-weight:600}
+tbody tr:hover{background:#f8fafc}
+.positive{color:#198754;font-weight:700}
+.negative{color:#dc3545;font-weight:700}
+
+.modules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.module-card{background:white;border:1px solid #e5e7eb;border-radius:10px;padding:17px;text-decoration:none;color:inherit;transition:.15s}
+.module-card:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,0,0,.08)}
+.module-card h3{margin:0 0 6px;font-size:15px}
+.module-card p{margin:0;color:#6b7280;font-size:12px;line-height:1.5}
+
+.empty-state{padding:30px;text-align:center;color:#6b7280}
+
+@media(max-width:800px){
+.charts-grid{grid-template-columns:1fr}
+}
+    /* CEO DECISION CENTER */
+
+    .decision-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+        margin-top: 15px;
+    }
+
+    .decision-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 3px 10px rgba(0,0,0,.06);
+        border-left: 4px solid #34495e;
+    }
+
+    .decision-card.attention-card {
+        border-left-color: #e67e22;
+    }
+
+    .decision-icon {
+        font-size: 25px;
+        margin-bottom: 10px;
+    }
+
+    .decision-label {
+        color: #7f8c8d;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        font-weight: bold;
+    }
+
+    .decision-title {
+        font-size: 20px;
+        font-weight: bold;
+        margin-top: 8px;
+    }
+
+    .decision-value {
+        font-size: 25px;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    .decision-card p {
+        color: #7f8c8d;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .decision-metrics {
+        display: flex;
+        gap: 25px;
+        margin-top: 15px;
+        font-size: 11px;
+        color: #7f8c8d;
+    }
+
+    .decision-metrics strong {
+        display: inline-block;
+        margin-top: 4px;
+        color: #2c3e50;
+        font-size: 14px;
+    }
+
+    .attention-list {
+        margin: 12px 0 0;
+        padding-left: 20px;
+    }
+
+    .attention-list li {
+        margin-bottom: 8px;
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .clear-message {
+        margin-top: 12px;
+    }
+</style>
+
+<div class="ceo-header">
+    <div>
+        <h1>CEO / Group Management</h1>
+        <p>Executive view of Sonoga Group performance, cash position and business-unit results.</p>
+    </div>
+
+    <div class="ceo-actions">
+        <a href="/dashboard/" class="btn">Group Dashboard</a>
+
+        <a href="{% url 'reports:management_csv' %}?start={{ start_date|date:'Y-m-d' }}&end={{ end_date|date:'Y-m-d' }}" class="btn btn-success">
+            Export Report
+        </a>
+    </div>
+</div>
+
+<div class="filter-card">
+    <form method="get" class="filter-form">
+
+        <div class="filter-group">
+            <label for="start">START DATE</label>
+            <input type="date" id="start" name="start" value="{{ start_date|date:'Y-m-d' }}">
+        </div>
+
+        <div class="filter-group">
+            <label for="end">END DATE</label>
+            <input type="date" id="end" name="end" value="{{ end_date|date:'Y-m-d' }}">
+        </div>
+
+        <div class="filter-group">
+            <label for="unit">BUSINESS UNIT</label>
+            <select id="unit" name="unit">
+                <option value="">All Business Units</option>
+                {% for unit in business_units %}
+                    <option value="{{ unit.code }}" {% if selected_unit == unit.code %}selected{% endif %}>
+                        {{ unit.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Run Report</button>
+
+    </form>
+</div>
+
+<div class="section-heading">
+    <h2>Executive Summary</h2>
+    <p>How is Sonoga Group performing for the selected period?</p>
+</div>
+
+<div class="summary-grid">
+
+    <div class="summary-card">
+        <div class="summary-label">Revenue</div>
+        <div class="summary-value">₦{{ totals.revenue }}</div>
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-label">Cash Received</div>
+        <div class="summary-value">₦{{ totals.cash_received }}</div>
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-label">Receivables</div>
+        <div class="summary-value">₦{{ totals.receivables }}</div>
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-label">Expenses</div>
+        <div class="summary-value">₦{{ totals.expenses }}</div>
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-label">Payroll</div>
+        <div class="summary-value">₦{{ totals.payroll }}</div>
+    </div>
+
+    <div class="summary-card result">
+        <div class="summary-label">Operating Result</div>
+        <div class="summary-value">₦{{ totals.operating_result }}</div>
+    </div>
+
+</div>
+
+<div class="section-heading">
+    <h2>Business Unit Performance</h2>
+    <p>Which business unit is driving Group performance?</p>
+</div>
+
+<div class="business-grid">
+
+{% for row in rows %}
+
+    <div class="business-card">
+
+        <h3>{{ row.business_unit.name }}</h3>
+
+        <div class="business-type">
+            {{ row.business_unit.unit_type }}
+        </div>
+
+        <div class="business-revenue">
+            ₦{{ row.revenue }}
+        </div>
+
+        <div class="business-label">Revenue</div>
+
+        <div class="business-stats">
+
+            <div class="mini-stat">
+                <strong>₦{{ row.cash_received }}</strong>
+                <span class="business-label">Cash</span>
+            </div>
+
+            <div class="mini-stat">
+                <strong>₦{{ row.expenses }}</strong>
+                <span class="business-label">Expenses</span>
+            </div>
+
+            <div class="mini-stat">
+                <strong>₦{{ row.receivables }}</strong>
+                <span class="business-label">Receivables</span>
+            </div>
+
+            <div class="mini-stat">
+                <strong class="{% if row.operating_result >= 0 %}positive{% else %}negative{% endif %}">
+                    ₦{{ row.operating_result }}
+                </strong>
+                <span class="business-label">Operating Result</span>
+            </div>
+
+        </div>
+
+    </div>
+
+{% empty %}
+
+    <div class="business-card">
+        <div class="empty-state">No active business units found.</div>
+    </div>
+
+{% endfor %}
+
+</div>
+
+<div class="section-heading">
+    <h2>Management Analytics</h2>
+    <p>Revenue, expenses and operating results across the selected business units.</p>
+</div>
+
+<div class="charts-grid">
+
+    <div class="chart-card">
+        <h3>Revenue vs Expenses</h3>
+        <div class="chart-wrap">
+            <canvas id="revenueExpenseChart"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-card">
+        <h3>Operating Result</h3>
+        <div class="chart-wrap">
+            <canvas id="profitChart"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<div class="section-heading">
+    <h2>Detailed Performance</h2>
+    <p>Financial comparison of active business units.</p>
+</div>
+
+<div class="table-card">
+
+<table>
+
+<thead>
+<tr>
+    <th>Business Unit</th>
+    <th>Revenue</th>
+    <th>Cash Received</th>
+    <th>Receivables</th>
+    <th>Expenses</th>
+    <th>Payroll</th>
+    <th>Operating Result</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for row in rows %}
+
+<tr>
+    <td><strong>{{ row.business_unit.name }}</strong></td>
+    <td>₦{{ row.revenue }}</td>
+    <td>₦{{ row.cash_received }}</td>
+    <td>₦{{ row.receivables }}</td>
+    <td>₦{{ row.expenses }}</td>
+    <td>₦{{ row.payroll }}</td>
+    <td class="{% if row.operating_result >= 0 %}positive{% else %}negative{% endif %}">
+        ₦{{ row.operating_result }}
+    </td>
+</tr>
+
+{% empty %}
+
+<tr>
+    <td colspan="7" class="empty-state">No business-unit data available.</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+<div class="section-heading">
+    <h2>Management Modules</h2>
+    <p>Quick access to the major operational areas of Sonoga Group.</p>
+</div>
+
+<div class="modules-grid">
+
+<a href="/hotel/" class="module-card">
+    <h3>🏨 Sonoga Hotels &amp; Suites</h3>
+    <p>Reservations, reception, rooms, guests, folios and housekeeping.</p>
+</a>
+
+<a href="/factory/BREAD/" class="module-card">
+    <h3>🍞 Mabinas Bread</h3>
+    <p>Bread production, sales, inventory and factory operations.</p>
+</a>
+
+<a href="/factory/WATER/" class="module-card">
+    <h3>💧 Mabinas Water</h3>
+    <p>Pure water production, sales, inventory and factory operations.</p>
+</a>
+
+<div class="module-card">
+    <h3>⚡ Crown Field</h3>
+    <p>Crown Field operations, performance and business activities.</p>
+</div>
+
+<a href="/finance/" class="module-card">
+    <h3>💰 Finance</h3>
+    <p>Financial transactions, expenses and business performance.</p>
+</a>
+
+<a href="/hr/" class="module-card">
+    <h3>👥 Human Resources</h3>
+    <p>Employees, departments and personnel management.</p>
+</a>
+
+<a href="/inventory/" class="module-card">
+    <h3>📦 Inventory</h3>
+    <p>Stock, warehouse items, supplies and assets.</p>
+</a>
+
+<a href="/procurement/" class="module-card">
+    <h3>🛒 Procurement</h3>
+    <p>Vendors, purchasing, purchase orders and supplies.</p>
+</a>
+
+<a href="/payroll/" class="module-card">
+    <h3>💵 Payroll</h3>
+    <p>Salaries, allowances, deductions and payroll runs.</p>
+</a>
+
+<a href="/control/" class="module-card">
+    <h3>🔐 System Control</h3>
+    <p>Approvals, audit logs, notifications and controls.</p>
+</a>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const labels = {{ chart_labels|safe }};
+const revenue = {{ chart_revenue|safe }};
+const expenses = {{ chart_expenses|safe }};
+const profit = {{ chart_profit|safe }};
+
+new Chart(document.getElementById("revenueExpenseChart"), {
+    type: "bar",
+    data: {
+        labels: labels,
+        datasets: [
+            { label: "Revenue", data: revenue },
+            { label: "Expenses", data: expenses }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: "bottom" }
+        }
+    }
+});
+
+new Chart(document.getElementById("profitChart"), {
+    type: "bar",
+    data: {
+        labels: labels,
+        datasets: [
+            { label: "Operating Result", data: profit }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false }
+        }
+    }
+});
+</script>
+
+{% endblock %}
+
+

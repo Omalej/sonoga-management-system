@@ -1,4 +1,6 @@
 ﻿import uuid
+from decimal import Decimal
+
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
@@ -15,19 +17,38 @@ from .models import (
 )
 
 
-@transaction.atomic
-def check_in_reservation(reservation_id, room, user):
-    """
-    Check a confirmed reservation into a room.
+# ============================================================
+# CHECK-IN
+# ============================================================
 
-    Creates a Stay and Folio, updates the reservation status,
-    and marks the room as occupied.
+@transaction.atomic
+def check_in_reservation(
+    reservation_id,
+    room,
+    user,
+):
+    """
+    Check a confirmed or pending reservation into a physical room.
+
+    Creates:
+        - Stay
+        - Folio
+        - Accommodation/room charge
+
+    Updates:
+        - Reservation status
+        - Assigned physical room
+        - Room occupancy
     """
 
     reservation = (
         Reservation.objects
         .select_for_update()
-        .select_related("guest", "room_type", "business_unit")
+        .select_related(
+            "guest",
+            "room_type",
+            "business_unit",
+        )
         .get(pk=reservation_id)
     )
 
@@ -43,11 +64,25 @@ def check_in_reservation(reservation_id, room, user):
     if not isinstance(room, Room):
         raise ValidationError("Invalid room.")
 
+    room = (
+        Room.objects
+        .select_for_update()
+        .select_related(
+            "room_type",
+            "business_unit",
+        )
+        .get(pk=room.pk)
+    )
+
     if room.business_unit_id != reservation.business_unit_id:
-        raise ValidationError("Room must belong to the same hotel.")
+        raise ValidationError(
+            "Room must belong to the same hotel."
+        )
 
     if room.room_type_id != reservation.room_type_id:
-        raise ValidationError("Room must match the reserved room type.")
+        raise ValidationError(
+            "Room must match the reserved room type."
+        )
 
     if not room.is_ready:
         raise ValidationError(
@@ -55,8 +90,12 @@ def check_in_reservation(reservation_id, room, user):
             "and unblocked before check-in."
         )
 
-    if Stay.objects.filter(reservation=reservation).exists():
-        raise ValidationError("This reservation already has a stay.")
+    if Stay.objects.filter(
+        reservation=reservation
+    ).exists():
+        raise ValidationError(
+            "This reservation already has a stay."
+        )
 
     now = timezone.now()
 
@@ -69,10 +108,32 @@ def check_in_reservation(reservation_id, room, user):
         status=Stay.Status.IN_HOUSE,
     )
 
-    Folio.objects.create(stay=stay)
+    folio = Folio.objects.create(
+        stay=stay
+    )
+
+    accommodation_total = (
+        reservation.accommodation_total
+    )
+
+    if accommodation_total > Decimal("0.00"):
+        FolioCharge.objects.create(
+            folio=folio,
+            charge_type=FolioCharge.ChargeType.ROOM,
+            description=(
+                f"Accommodation - "
+                f"{reservation.room_type.name} - "
+                f"{reservation.nights} night"
+                f"{'s' if reservation.nights != 1 else ''} - "
+                f"Room {room.number}"
+            ),
+            amount=accommodation_total,
+            posted_by=user,
+        )
 
     reservation.assigned_room = room
     reservation.status = Reservation.Status.CHECKED_IN
+
     reservation.save(
         update_fields=[
             "assigned_room",
@@ -81,25 +142,40 @@ def check_in_reservation(reservation_id, room, user):
         ]
     )
 
-    room.occupancy_status = Room.Occupancy.OCCUPIED
-    room.save(update_fields=["occupancy_status", "updated_at"])
+    room.occupancy_status = (
+        Room.Occupancy.OCCUPIED
+    )
+
+    room.save(
+        update_fields=[
+            "occupancy_status",
+            "updated_at",
+        ]
+    )
 
     return stay
 
 
+# ============================================================
+# CHECK-OUT
+# ============================================================
+
 @transaction.atomic
-def check_out_stay(reservation_id, user, allow_balance=False):
+def check_out_stay(
+    reservation_id,
+    user,
+    allow_balance=False,
+):
     """
     Check out the active stay for a reservation.
-
-    Closes the folio, marks the stay checked out,
-    makes the room vacant and creates a housekeeping task.
     """
 
     reservation = (
         Reservation.objects
         .select_for_update()
-        .select_related("guest")
+        .select_related(
+            "guest"
+        )
         .get(pk=reservation_id)
     )
 
@@ -107,27 +183,49 @@ def check_out_stay(reservation_id, user, allow_balance=False):
         stay = (
             Stay.objects
             .select_for_update()
-            .select_related("room", "folio")
-            .get(reservation=reservation)
+            .select_related(
+                "room",
+                "folio",
+            )
+            .get(
+                reservation=reservation
+            )
         )
+
     except Stay.DoesNotExist:
-        raise ValidationError("This reservation has no stay.")
+        raise ValidationError(
+            "This reservation has no stay."
+        )
 
     if stay.status != Stay.Status.IN_HOUSE:
-        raise ValidationError("This guest has already checked out.")
-
-    folio = getattr(stay, "folio", None)
-
-    if folio and not allow_balance and folio.balance > 0:
         raise ValidationError(
-            f"Outstanding folio balance is â‚¦{folio.balance:,.2f}."
+            "This guest has already checked out."
+        )
+
+    folio = getattr(
+        stay,
+        "folio",
+        None,
+    )
+
+    if (
+        folio
+        and not allow_balance
+        and folio.balance > Decimal("0.00")
+    ):
+        raise ValidationError(
+            f"Outstanding folio balance is "
+            f"₦{folio.balance:,.2f}."
         )
 
     now = timezone.now()
 
-    stay.status = Stay.Status.CHECKED_OUT
+    stay.status = (
+        Stay.Status.CHECKED_OUT
+    )
     stay.checked_out_at = now
     stay.checked_out_by = user
+
     stay.save(
         update_fields=[
             "status",
@@ -140,11 +238,24 @@ def check_out_stay(reservation_id, user, allow_balance=False):
     if folio:
         folio.is_closed = True
         folio.closed_at = now
-        folio.save(update_fields=["is_closed", "closed_at", "updated_at"])
+
+        folio.save(
+            update_fields=[
+                "is_closed",
+                "closed_at",
+                "updated_at",
+            ]
+        )
 
     room = stay.room
-    room.occupancy_status = Room.Occupancy.VACANT
-    room.housekeeping_status = Room.Housekeeping.DIRTY
+
+    room.occupancy_status = (
+        Room.Occupancy.VACANT
+    )
+    room.housekeeping_status = (
+        Room.Housekeeping.DIRTY
+    )
+
     room.save(
         update_fields=[
             "occupancy_status",
@@ -158,14 +269,29 @@ def check_out_stay(reservation_id, user, allow_balance=False):
         task_type="Checkout Cleaning",
         status=HousekeepingTask.Status.PENDING,
         priority="Normal",
-        notes=f"Checkout cleaning for reservation {reservation.reservation_number}.",
+        notes=(
+            "Checkout cleaning for reservation "
+            f"{reservation.reservation_number}."
+        ),
     )
 
-    reservation.status = Reservation.Status.CHECKED_OUT
-    reservation.save(update_fields=["status", "updated_at"])
+    reservation.status = (
+        Reservation.Status.CHECKED_OUT
+    )
+
+    reservation.save(
+        update_fields=[
+            "status",
+            "updated_at",
+        ]
+    )
 
     return stay
 
+
+# ============================================================
+# FOLIO PAYMENT
+# ============================================================
 
 @transaction.atomic
 def post_folio_payment(
@@ -178,30 +304,66 @@ def post_folio_payment(
     notes="",
 ):
     """
-    Record a payment against the active reservation folio.
+    Record a completed payment against the active reservation folio.
     """
+
+    # IMPORTANT:
+    # Do NOT use select_related("stay") together with
+    # select_for_update() here.
+    #
+    # PostgreSQL rejects the generated LEFT OUTER JOIN
+    # because Stay is nullable from the Reservation side.
 
     reservation = (
         Reservation.objects
-        .select_related("stay")
+        .select_for_update()
         .get(pk=reservation_id)
     )
 
     try:
-        folio = reservation.stay.folio
-    except (Stay.DoesNotExist, Folio.DoesNotExist):
+        stay = (
+            Stay.objects
+            .select_for_update()
+            .get(
+                reservation=reservation
+            )
+        )
+
+        folio = (
+            Folio.objects
+            .select_for_update()
+            .get(
+                stay=stay
+            )
+        )
+
+    except (
+        Stay.DoesNotExist,
+        Folio.DoesNotExist,
+    ):
         raise ValidationError(
             "This reservation does not have an active folio."
         )
 
     if folio.is_closed:
-        raise ValidationError("This folio is already closed.")
+        raise ValidationError(
+            "This folio is already closed."
+        )
 
-    if amount <= 0:
-        raise ValidationError("Payment amount must be greater than zero.")
+    if amount is None:
+        raise ValidationError(
+            "Payment amount is required."
+        )
+
+    if amount <= Decimal("0.00"):
+        raise ValidationError(
+            "Payment amount must be greater than zero."
+        )
 
     if not reference:
-        reference = f"PAY-{uuid.uuid4().hex[:12].upper()}"
+        reference = (
+            f"PAY-{uuid.uuid4().hex[:12].upper()}"
+        )
 
     payment = Payment(
         folio=folio,
@@ -219,29 +381,44 @@ def post_folio_payment(
 
     return payment
 
+
+# ============================================================
+# HOUSEKEEPING VERIFICATION
+# ============================================================
+
 @transaction.atomic
-def verify_housekeeping_task(task_id, user):
+def verify_housekeeping_task(
+    task_id,
+    user,
+):
     """
-    Verify a completed housekeeping task and return the room
-    to ready/vacant status when maintenance is clear.
+    Verify a completed housekeeping task.
     """
 
     task = (
         HousekeepingTask.objects
         .select_for_update()
-        .select_related("room")
+        .select_related(
+            "room"
+        )
         .get(pk=task_id)
     )
 
-    if task.status != HousekeepingTask.Status.COMPLETED:
+    if task.status != (
+        HousekeepingTask.Status.COMPLETED
+    ):
         raise ValidationError(
-            "Only completed housekeeping tasks can be verified."
+            "Only completed housekeeping tasks "
+            "can be verified."
         )
 
     room = task.room
 
-    task.status = HousekeepingTask.Status.VERIFIED
+    task.status = (
+        HousekeepingTask.Status.VERIFIED
+    )
     task.verified_by = user
+
     task.save(
         update_fields=[
             "status",
@@ -250,10 +427,17 @@ def verify_housekeeping_task(task_id, user):
         ]
     )
 
-    room.housekeeping_status = Room.Housekeeping.CLEAN
+    room.housekeeping_status = (
+        Room.Housekeeping.CLEAN
+    )
 
-    if room.maintenance_status == Room.Maintenance.CLEAR:
-        room.occupancy_status = Room.Occupancy.VACANT
+    if (
+        room.maintenance_status
+        == Room.Maintenance.CLEAR
+    ):
+        room.occupancy_status = (
+            Room.Occupancy.VACANT
+        )
 
     room.save(
         update_fields=[
@@ -266,58 +450,169 @@ def verify_housekeeping_task(task_id, user):
     return task
 
 
+# ============================================================
+# ROOM TRANSFER
+# ============================================================
+
 @transaction.atomic
-def swap_guest(reservation, new_guest):
+def transfer_stay_room(
+    reservation,
+    new_room,
+    user,
+):
     """
-    Change the guest attached to a reservation.
-
-    If the reservation already has a Stay, the Stay guest
-    is updated as well.
-
-    The room, dates, rate, reservation number, folio and payments
-    remain unchanged.
+    Move an in-house guest from the current room to another room.
     """
 
     if not isinstance(reservation, Reservation):
-        raise ValidationError("Invalid reservation.")
+        raise ValidationError(
+            "Invalid reservation."
+        )
 
-    if not isinstance(new_guest, Guest):
-        raise ValidationError("Invalid guest.")
+    if not isinstance(new_room, Room):
+        raise ValidationError(
+            "Invalid room."
+        )
 
     reservation = (
         Reservation.objects
         .select_for_update()
-        .select_related("guest")
+        .select_related(
+            "guest",
+            "room_type",
+            "business_unit",
+        )
         .get(pk=reservation.pk)
     )
 
-    old_guest = reservation.guest
-
-    if old_guest.pk == new_guest.pk:
+    if reservation.status != Reservation.Status.CHECKED_IN:
         raise ValidationError(
-            "The selected guest is already assigned to this reservation."
+            "Only a checked-in reservation can be moved "
+            "to another room."
         )
 
-    reservation.guest = new_guest
-    reservation.save(
+    try:
+        stay = (
+            Stay.objects
+            .select_for_update()
+            .select_related(
+                "room",
+            )
+            .get(
+                reservation=reservation,
+                status=Stay.Status.IN_HOUSE,
+            )
+        )
+
+    except Stay.DoesNotExist:
+        raise ValidationError(
+            "This reservation does not have an active stay."
+        )
+
+    old_room = stay.room
+
+    if old_room.pk == new_room.pk:
+        raise ValidationError(
+            "The selected room is already assigned "
+            "to this guest."
+        )
+
+    room_ids = sorted([
+        old_room.pk,
+        new_room.pk,
+    ])
+
+    locked_rooms = list(
+        Room.objects
+        .select_for_update()
+        .select_related(
+            "room_type",
+            "business_unit",
+        )
+        .filter(pk__in=room_ids)
+        .order_by("pk")
+    )
+
+    locked_by_id = {
+        room.pk: room
+        for room in locked_rooms
+    }
+
+    old_room = locked_by_id[old_room.pk]
+    new_room = locked_by_id[new_room.pk]
+
+    if new_room.business_unit_id != reservation.business_unit_id:
+        raise ValidationError(
+            "The new room must belong to the same hotel."
+        )
+
+    if new_room.room_type_id != reservation.room_type_id:
+        raise ValidationError(
+            "The new room must match the reserved room type."
+        )
+
+    if not new_room.is_ready:
+        raise ValidationError(
+            "The new room must be vacant, clean, clear of "
+            "maintenance, and unblocked."
+        )
+
+    stay.room = new_room
+
+    stay.save(
         update_fields=[
-            "guest",
+            "room",
             "updated_at",
         ]
     )
 
-    stay = Stay.objects.filter(
-        reservation=reservation
-    ).select_for_update().first()
+    reservation.assigned_room = new_room
 
-    if stay:
-        stay.guest = new_guest
-        stay.save(
-            update_fields=[
-                "guest",
-                "updated_at",
-            ]
-        )
+    reservation.save(
+        update_fields=[
+            "assigned_room",
+            "updated_at",
+        ]
+    )
 
-    return reservation
+    old_room.occupancy_status = (
+        Room.Occupancy.VACANT
+    )
 
+    old_room.housekeeping_status = (
+        Room.Housekeeping.DIRTY
+    )
+
+    old_room.save(
+        update_fields=[
+            "occupancy_status",
+            "housekeeping_status",
+            "updated_at",
+        ]
+    )
+
+    HousekeepingTask.objects.create(
+        room=old_room,
+        task_type="Room Transfer Cleaning",
+        status=HousekeepingTask.Status.PENDING,
+        priority="Normal",
+        notes=(
+            "Cleaning required after room transfer for "
+            f"reservation {reservation.reservation_number}. "
+            f"Guest moved from Room {old_room.number} "
+            f"to Room {new_room.number}."
+        ),
+    )
+
+    new_room.occupancy_status = (
+        Room.Occupancy.OCCUPIED
+    )
+
+    new_room.save(
+        update_fields=[
+            "occupancy_status",
+            "updated_at",
+        ]
+    )
+
+    return stay
