@@ -63,6 +63,7 @@ esac
 
 python manage.py migrate --noinput
 python manage.py bootstrap_sonoga
+python manage.py create_receptionist
 python manage.py seed_sonoga_defaults
 python manage.py collectstatic --noinput
 python manage.py sonoga_readiness
