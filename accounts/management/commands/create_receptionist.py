@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
         username = "reception"
         email = "reception@sonogahotels.com"
-        password = "ChangeMe123!"
+        password = "Sonoga2026!"
 
         user, created = User.objects.get_or_create(
             username=username,
