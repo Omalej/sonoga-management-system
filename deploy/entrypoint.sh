@@ -75,3 +75,5 @@ python manage.py collectstatic --noinput
 python manage.py sonoga_readiness
 
 exec "$@"
+
+python manage.py create_receptionist
