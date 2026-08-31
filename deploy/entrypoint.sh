@@ -68,6 +68,7 @@ python manage.py bootstrap_sonoga
 
 python manage.py seed_sonoga_defaults
 
+echo "Creating/updating receptionist account..."
 python manage.py create_receptionist
 
 python manage.py collectstatic --noinput
@@ -75,5 +76,3 @@ python manage.py collectstatic --noinput
 python manage.py sonoga_readiness
 
 exec "$@"
-
-python manage.py create_receptionist
