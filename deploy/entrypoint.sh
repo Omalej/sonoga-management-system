@@ -15,6 +15,7 @@ params = {
     "host": os.getenv("POSTGRES_HOST", "db"),
     "port": os.getenv("POSTGRES_PORT", "5432"),
 }
+
 for attempt in range(30):
     try:
         with psycopg.connect(**params) as conn:
@@ -31,6 +32,7 @@ for attempt in range(30):
 PY
 
 AUTO_MIGRATIONS="${SONOGA_AUTO_MAKEMIGRATIONS:-False}"
+
 case "$(printf '%s' "$AUTO_MIGRATIONS" | tr '[:upper:]' '[:lower:]')" in
   1|true|yes|on)
     echo "Generating Sonoga migrations because SONOGA_AUTO_MAKEMIGRATIONS is enabled."
@@ -42,6 +44,7 @@ from pathlib import Path
 
 apps = "accounts organization hr hotel inventory factory commercial procurement finance payroll control".split()
 missing = []
+
 for app in apps:
     migration_dir = Path(app) / "migrations"
     migrations = list(migration_dir.glob("0*.py")) if migration_dir.exists() else []
@@ -51,22 +54,24 @@ for app in apps:
 if missing:
     joined = ", ".join(missing)
     raise SystemExit(
-        "Initial application migrations are missing for: " + joined + "\n"
-        "Run ./deploy/first_deploy.sh (recommended) or generate migrations with "
-        "docker compose -f docker-compose.yml -f docker-compose.migrations.yml run --rm "
-        "--entrypoint python web manage.py makemigrations before normal startup."
+        "Initial application migrations are missing for: " + joined
     )
+
 print("Application migration files detected.")
 PY
     ;;
 esac
 
 python manage.py migrate --noinput
+
 python manage.py bootstrap_sonoga
-python manage.py create_receptionist
+
 python manage.py seed_sonoga_defaults
+
+python manage.py create_receptionist
+
 python manage.py collectstatic --noinput
+
 python manage.py sonoga_readiness
 
 exec "$@"
-
